@@ -1,6 +1,7 @@
 'use client';
 
 import MainLayout from '@/app/components/main_layout';
+import Image from "next/image";
 import Link from 'next/link';
 
 export default function ExtinguisherDetailPage() {
@@ -10,7 +11,7 @@ export default function ExtinguisherDetailPage() {
             
             {/* Success Icon */}
             <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
-                <img
+                <Image
                     src="/images/extinguisher.svg"
                     alt="Car cleaning service"
                     className="object-cover"

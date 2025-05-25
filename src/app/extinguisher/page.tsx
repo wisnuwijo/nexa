@@ -1,11 +1,11 @@
 'use client';
 
-import { BellAlertIcon, HomeIcon, Squares2X2Icon, UserIcon, PlusIcon, QrCodeIcon, DocumentArrowDownIcon } from '@heroicons/react/24/solid';
+import { DocumentArrowDownIcon, PlusIcon, QrCodeIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import MainLayout from '../components/main_layout';
-import Link from 'next/link';
 
 interface Extinguisher {
   location: string;

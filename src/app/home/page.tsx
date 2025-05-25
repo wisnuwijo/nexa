@@ -1,9 +1,7 @@
 'use client';
 
-import { BellAlertIcon, HomeIcon, Squares2X2Icon, UserIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import MainLayout from '../components/main_layout';
 
 interface Course {
@@ -14,7 +12,6 @@ interface Course {
 }
 
 export default function HomePage() {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
