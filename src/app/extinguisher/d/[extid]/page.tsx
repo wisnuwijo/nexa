@@ -10,8 +10,10 @@ export default function ExtinguisherDetailPage() {
         <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 pt-24">
             
             {/* Success Icon */}
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4">
                 <Image
+                    width={40}
+                    height={40}
                     src="/images/extinguisher.svg"
                     alt="Car cleaning service"
                     className="object-cover"

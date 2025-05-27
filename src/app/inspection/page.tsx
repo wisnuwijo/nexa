@@ -1,27 +1,31 @@
 'use client';
 
-import { DocumentArrowDownIcon, PlusIcon, QrCodeIcon } from '@heroicons/react/24/solid';
-import Image from 'next/image';
+import { DocumentArrowDownIcon, DocumentTextIcon, PlusIcon, QrCodeIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import MainLayout from '../components/main_layout';
 
-interface Extinguisher {
-  location: string;
-  brand: string;
-  medium: string;
-  capacity: string;
-  image: string;
+enum Status {
+  Pending = 'Belum dikerjakan',
+  OnProgress = 'On progress',
+  Finished = 'Selesai'
 }
 
-export default function ExtingisherPage() {
+interface InspectionReport {
+  name: string;
+  status: Status;
+  createdAt: string;
+  createdBy: string;
+}
+
+export default function InspectionPage() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const extinguisherList: Extinguisher[] = [
-    { location: 'Depan Gerbang Utama', brand: 'Tanexa', medium: 'Powder', capacity: '3.0 kg', image: '/images/extinguisher.svg'},
-    { location: 'Pojok Aula', brand: 'Tanexa', medium: 'Powder', capacity: '3.0 kg', image: '/images/extinguisher.svg' },
-    { location: 'Basement 12', brand: 'Tanexa', medium: 'Powder', capacity: '3.0 kg', image: '/images/extinguisher.svg' }
+  const extinguisherList: InspectionReport[] = [
+    { name: 'Inspeksi Maret', status: Status.Finished, createdAt: '12 Maret 2025', createdBy: 'Suryo'},
+    { name: 'Inspeksi April', status: Status.Pending, createdAt: '20 April 2025', createdBy: 'Tukiman'},
+    { name: 'Inspeksi Mei', status: Status.OnProgress, createdAt: '03 Mei 2025', createdBy: 'Pardjo'}
   ];
 
   return (
@@ -30,42 +34,39 @@ export default function ExtingisherPage() {
             <div className="max-w-[430px] mx-auto px-4 pb-24">
                 {/* Header */}
                 <div className="flex justify-between items-center py-6">
-                <div>
-                    <h1 className="text-gray-900 text-xl font-bold">Kelola APAR</h1>
-                    <p className="text-gray-500 text-sm mt-1">Pastikan alat pemadam selalu siap digunakan dalam keadaan darurat.</p>
-                </div>
+                    <div>
+                        <h1 className="text-gray-900 text-xl font-bold">Inspeksi APAR</h1>
+                        <p className="text-gray-500 text-sm mt-1">Pantau dan kelola pemeriksaan alat pemadam api ringan secara berkala.</p>
+                    </div>
                 </div>
 
                 <div className="mb-8">
                     <div className="space-y-4">
                         {extinguisherList.map((ext, index) => (
                             <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">
-                                <Link key={index} href={'/extinguisher/d/' + index}>
+                                <Link key={index} href={'/inspection/d/' + index}>
                                     <div className="flex items-center space-x-4">
                                     <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
-                                        <Image
-                                        src={ext.image}
-                                        alt={ext.location}
-                                        width={20}
-                                        height={20}
-                                        className="object-contain"
-                                        />
+                                        <DocumentTextIcon width={20} height={20} color='#9334e9' />
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="text-gray-900 font-medium text-base">{ext.location}</h3>
-                                        <div className="grid grid-cols-3 gap-2">
-                                        <div className="text-left">
-                                            <p className="text-xs text-gray-500">Brand</p>
-                                            <p className="text-sm font-medium text-gray-700">{ext.brand}</p>
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="text-xs text-gray-500">Media</p>
-                                            <p className="text-sm font-medium text-gray-700">{ext.medium}</p>
-                                        </div>
-                                        <div className="text-left">
-                                            <p className="text-xs text-gray-500">Kapasitas</p>
-                                            <p className="text-sm font-medium text-gray-700">{ext.capacity}</p>
-                                        </div>
+                                        <h3 className="text-gray-900 font-medium text-base">{ext.name}</h3>
+                                        <div className="grid grid-cols-3 gap-1">
+                                            <div className="text-left">
+                                                <p className="text-xs text-gray-500">Tgl. dibuat</p>
+                                                <p className="text-sm font-medium text-gray-700">{ext.createdAt}</p>
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-xs text-gray-500">Status</p>
+                                                <p className="text-sm font-medium text-gray-700">{ext.status}</p>
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="text-xs text-gray-500">Inspeksi oleh</p>
+                                                <p className="text-sm font-medium text-gray-700">
+                                                    <UserCircleIcon width={15} height={15} color='#9334e9' className="inline-block mr-2" />
+                                                    {ext.createdBy}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                     </div>

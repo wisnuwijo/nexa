@@ -15,6 +15,7 @@ export default function MainLayout(props: MainLayoutProps) {
 
   const homeRoute:string[] = ['/home'];
   const extinguisherRoute:string[] = ['/extinguisher', '/extinguisher/sticker', '/extinguisher/sticker/create'];
+  const inspectionRoute:string[] = ['/inspection'];
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
@@ -62,7 +63,7 @@ export default function MainLayout(props: MainLayoutProps) {
                         </button>
 
                         <button 
-                        className={`flex flex-col items-center w-16 ${pathname === '/notification' ? 'text-purple-600' : 'text-gray-400'}`}
+                        className={`flex flex-col items-center w-16 ${inspectionRoute.includes(pathname) ? 'text-purple-600' : 'text-gray-400'}`}
                         onClick={() => router.push('/inspection')}
                         >
                             <MagnifyingGlassIcon className="w-6 h-6 mb-0.5" />
