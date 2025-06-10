@@ -34,7 +34,7 @@ export default function ProfilePage() {
     };
 
     return (
-        <MainLayout appBarTitle='Profil' showNavBar={true} children={
+        <MainLayout appBarTitle='Profil' showNavBar={true}>
             <div className="mx-auto pt-10 max-w-[430px] mx-auto pb-24">
                 {/* Profile Card */}
                 <div className="bg-white rounded-lg shadow mb-4">
@@ -137,7 +137,7 @@ export default function ProfilePage() {
                 )}
 
             </div>
-        } />
+        </MainLayout>
     );
 }
 

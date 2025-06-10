@@ -1,31 +1,21 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import MainLayout from '../components/main_layout';
 
-interface Course {
-  title: string;
-  rating: number;
-  image: string;
-  liked?: boolean;
-}
-
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const [defects, setDefects] = useState([
+  const [defects] = useState([
     { name: 'Low Pressure', percentage: 45 },
     { name: 'Broken Seal', percentage: 20 },
     { name: 'Obstructed', percentage: 10 },
   ]);
 
-  const [recentActivity, setRecentActivity] = useState([
+  const [recentActivity] = useState([
     { inspector: 'Mark', action: 'passed', id: 33, time: '2h ago' },
     { inspector: 'Ana', action: 'failed', id: 12, reason: 'Low pressure', time: '4h ago' },
   ]);
 
-  const [overdueInspections, setOverdueInspections] = useState([
+  const [overdueInspections] = useState([
     { location: '3F-West', id: 45, daysOverdue: 5 },
     { location: 'Kitchen', id: 12, daysOverdue: 3 },
     { location: 'Garage', id: 78, daysOverdue: 2 },

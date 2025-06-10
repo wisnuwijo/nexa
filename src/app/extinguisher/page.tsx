@@ -24,7 +24,7 @@ export default function ExtingisherPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Mock data
-    const [extinguishers, setExtinguishers] = useState<Extinguisher2[]>([
+    const [extinguishers] = useState<Extinguisher2[]>([
         {
             id: "ext-001",
             unitNumber: "APAR-001",
