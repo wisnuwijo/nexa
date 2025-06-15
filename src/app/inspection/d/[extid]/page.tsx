@@ -39,7 +39,7 @@ export default function InspectionDetailPage() {
             {/* Success Message */}
             <h1 className="text-xl font-semibold text-gray-900 mb-1">Inspeksi Mei</h1>
 
-            {/* Reservation Details */}
+            {/* Inspection Details */}
             <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-4 mt-8">
                 <div className="flex justify-between">
                     <div>
@@ -67,13 +67,32 @@ export default function InspectionDetailPage() {
                 </div>
             </div>
 
+            {/* Inspection Details */}
+            <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-4 mt-8">
+                <div className="flex justify-between">
+                    <div>
+                        <p className="text-sm text-gray-500">Estimasi Penawaran</p>
+                        <p className="text-base font-medium text-gray-900">Rp. 20.000.000</p>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm text-gray-500">Penawaran</p>
+                        <p className="text-base font-medium text-gray-900">
+                            <Link href="#">
+                                <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600"/>
+                                Unduh
+                            </Link>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="w-full max-w-sm space-y-3 mt-8">
-                <Link href="/extinguisher/u/1" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
+                <Link href="/inspection/i/83180142903" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
                     <PlayCircleIcon width={20} height={20} className="inline-block mr-2"/>
                     Lanjut Inspeksi
                 </Link>
-                <Link href="/extinguisher/u/1" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
+                <Link href="#" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
                     <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2"/>
                     Unduh Laporan
                 </Link>
@@ -120,11 +139,6 @@ export default function InspectionDetailPage() {
                                                     {ext.capacity}
                                                 </p>
                                             </div>
-                                        </div>
-
-                                        <div className="flex-1 min-w-0 mt-3">
-                                            <p className="text-xs text-gray-500">Keterangan</p>
-                                            <p className="text-sm font-medium text-gray-700">{ext.note}</p>
                                         </div>
                                     </div>
                                 </div>

@@ -93,10 +93,18 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                     </div>
                 </div>
 
-                ---
+                {/* Action Buttons */}
+                <div className="w-full max-w-sm space-y-3 mt-6">
+                    <Link href="/extinguisher/u/1" className="block w-full bg-white border border-purple-600 text-purple-600 py-3 rounded-xl font-bold transition-colors text-center">
+                        Edit APAR
+                    </Link>
+                    <Link href={`/extinguisher/placement/${extid}`} className="block w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors text-center">
+                        Ubah Penempatan APAR
+                    </Link>
+                </div>
 
                 {/* Inspection History Log Display */}
-                <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-6 mt-8">
+                <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-6 mt-8 mb-8">
                     <h2 className="text-lg font-semibold text-gray-900">Riwayat Inspeksi</h2>
                     {inspectionHistory.length > 0 ? (
                         inspectionHistory.map((log, index) => (
@@ -116,19 +124,6 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                     ) : (
                         <p className="text-gray-500">Belum ada riwayat inspeksi untuk APAR ini.</p>
                     )}
-                </div>
-
-                ---
-
-                {/* Action Buttons */}
-                <div className="w-full max-w-sm space-y-3 mt-6 mb-8">
-                    <Link href="/extinguisher/u/1" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
-                        Ubah data APAR
-                    </Link>
-                    {/* If you want to add a button to navigate to a new inspection form, you can uncomment this */}
-                    {/* <Link href={`/extinguisher/${extid}/new-inspection`} className="block w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors text-center">
-                        Tambah Inspeksi Baru
-                    </Link> */}
                 </div>
             </div>
         </MainLayout>

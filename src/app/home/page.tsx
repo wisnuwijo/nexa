@@ -66,19 +66,6 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Overdue Inspections */}
-          <div className="bg-white p-6 rounded-lg shadow mb-4">
-            <h2 className="text-xl font-semibold text-gray-500 mb-4">⚠️ Inspeksi Terlambat</h2>
-            <div className="space-y-3">
-              {overdueInspections.map((inspection, index) => (
-                <div key={index} className="p-3 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                  <div className="font-medium text-gray-500">{inspection.location} - #{inspection.id}</div>
-                  <div className="text-sm text-gray-600">Terlambat {inspection.daysOverdue} hari</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           {/* Footer */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4 text-gray-500">📝 Riwayat Aktivitas Terbaru</h2>

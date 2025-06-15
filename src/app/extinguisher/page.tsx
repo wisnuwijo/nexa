@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentArrowDownIcon, PlusIcon, QrCodeIcon } from '@heroicons/react/24/solid';
+import { DocumentArrowDownIcon, EllipsisHorizontalIcon, QrCodeIcon } from '@heroicons/react/24/solid';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -69,15 +69,33 @@ export default function ExtingisherPage() {
                     <div className="mb-8">
 
                         {/* Search Bar */}
-                        <div className="relative mb-8">
+                        <div className="relative mb-4">
                             <input
                                 type="text"
-                                placeholder="Search for your grade, course, training type..."
+                                placeholder="Cari APAR.."
                                 className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
                             // value={searchQuery}
                             // onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+                        </div>
+
+                        {/* Building Filter */}
+                        <div className="relative mb-12 text-gray-600">
+                            <select
+                                className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
+                                onChange={(e) => {
+                                    // Handle building filter change
+                                    const selectedBuilding = e.target.value;
+                                    // You can implement the filtering logic here
+                                }}
+                            >
+                                <option value="">Semua gedung</option>
+                                <option value="building-a">Building A</option>
+                                <option value="building-b">Building B</option>
+                                <option value="building-c">Building C</option>
+                            </select>
+                            <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🏢</span>
                         </div>
 
                         {/* Extinguisher table */}
@@ -209,7 +227,7 @@ export default function ExtingisherPage() {
                     onClick={() => setIsModalOpen(true)}
                     className="fixed right-[5%] bottom-20 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700 transition-colors"
                 >
-                    <PlusIcon className="w-6 h-6 text-white" />
+                    <EllipsisHorizontalIcon className="w-6 h-6 text-white" />
                 </button>
 
                 {/* Modal Bottom Sheet */}

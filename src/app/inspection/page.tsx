@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentArrowDownIcon, DocumentTextIcon, PlusIcon, QrCodeIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { DocumentTextIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -79,46 +79,11 @@ export default function InspectionPage() {
 
             {/* Floating Action Button */}
             <button 
-                onClick={() => setIsModalOpen(true)}
+                onClick={() => router.push('/inspection/create')}
                 className="fixed right-[5%] bottom-20 w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center shadow-lg hover:bg-purple-700 transition-colors"
             >
                 <PlusIcon className="w-6 h-6 text-white" />
             </button>
-
-            {/* Modal Bottom Sheet */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsModalOpen(false)}>
-                <div 
-                    className="fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl p-6"
-                    onClick={e => e.stopPropagation()}
-                >
-                    <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
-                    <div className="space-y-4">
-                    <button 
-                        className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors"
-                        onClick={() => {
-                        // Handle QR generation
-                        setIsModalOpen(false);
-                        router.push('/extinguisher/sticker'); // Navigate to the QR generation pag
-                        }}
-                    >
-                        <QrCodeIcon className="w-6 h-6 text-purple-600" />
-                        <span className="text-gray-700">Generate QR</span>
-                    </button>
-                    <button 
-                        className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors"
-                        onClick={() => {
-                        // Handle PDF download
-                        setIsModalOpen(false);
-                        }}
-                    >
-                        <DocumentArrowDownIcon className="w-6 h-6 text-purple-600" />
-                        <span className="text-gray-700">Download PDF</span>
-                    </button>
-                    </div>
-                </div>
-                </div>
-            )}
         </div>
     </MainLayout>
   );

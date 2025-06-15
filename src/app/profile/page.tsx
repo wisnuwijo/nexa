@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import MainLayout from '../components/main_layout';
 import { useRouter } from 'next/navigation';
+import { UsersIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -35,7 +37,7 @@ export default function ProfilePage() {
 
     return (
         <MainLayout appBarTitle='Profil' showNavBar={true}>
-            <div className="mx-auto pt-10 max-w-[430px] mx-auto pb-24">
+            <div className="mx-auto pt-10 max-w-[430px] mx-auto px-4 pb-24">
                 {/* Profile Card */}
                 <div className="bg-white rounded-lg shadow mb-4">
                     <div className="bg-purple-600 p-4 text-center">
@@ -61,6 +63,22 @@ export default function ProfilePage() {
                     <StatCard title="Total Inspeksi" value={user.inspectionsCompleted} icon="🧯" />
                     <StatCard title="Kelulusan" value="89%" icon="✅" isGood />
                     <StatCard title="Perlu Tindakan" value="7" icon="⚠️" isWarning />
+                </div>
+
+                {/* User management */}
+                <div className="bg-white rounded-lg shadow mt-3">
+                    <div className="p-3 text-center">
+                        <Link href={"/users"} className="text-gray-600 text-xs font-medium">
+                            <div className="flex w-full items-center">
+                                <div className="text-left mr-5">
+                                    <UsersIcon className="h-6 w-6 text-gray-500" />
+                                </div>
+                                <div className="text-left text-md">
+                                    Kelola Pengguna
+                                </div>
+                            </div>
+                        </Link>
+                    </div>
                 </div>
 
                 {/* Recent Inspections */}
@@ -95,7 +113,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Bottom Action Buttons */}
-                <div className="bg-white rounded-lg shadow mt-5 flex justify-center" style={{ width: '430px' }}>
+                <div className="bg-white rounded-lg shadow mt-5 flex justify-center">
                     <div className="bg-white p-4 w-full flex justify-between">
                         <button
                             onClick={() => setShowAboutModal(true)}
@@ -169,8 +187,8 @@ function StatCard({
             <p className="text-xs text-gray-500">{title}</p>
             <div className="flex justify-between items-center mt-1">
                 <p className={`text-lg font-bold ${isGood ? 'text-green-600' :
-                        isWarning ? 'text-yellow-600' :
-                            'text-gray-800'
+                    isWarning ? 'text-yellow-600' :
+                        'text-gray-800'
                     }`}>
                     {value}
                 </p>
