@@ -3,7 +3,6 @@
 import { DocumentTextIcon, PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import MainLayout from '../components/main_layout';
 
 enum Status {
@@ -21,7 +20,6 @@ interface InspectionReport {
 
 export default function InspectionPage() {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const extinguisherList: InspectionReport[] = [
     { name: 'Inspeksi Maret', status: Status.Finished, createdAt: '12 Maret 2025', createdBy: 'Suryo'},
     { name: 'Inspeksi April', status: Status.Pending, createdAt: '20 April 2025', createdBy: 'Tukiman'},

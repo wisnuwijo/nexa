@@ -1,8 +1,7 @@
 import MainLayout from "@/app/components/main_layout";
-import { use } from "react";
 
-export default function ExtinguisherUpdateDataPage({ params }: { params: Promise<{ extid: string }> }) {
-    const { extid } = use(params);
+export default function ExtinguisherUpdateDataPage() {
+    // const { extid } = use(params);
     
     return <MainLayout appBarTitle="Ubah Data APAR" showNavBar={false}>
         <div className="min-h-screen bg-gray-50 relative">

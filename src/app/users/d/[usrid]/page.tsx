@@ -1,31 +1,21 @@
 'use client';
 
 import MainLayout from '@/app/components/main_layout';
-import { DocumentTextIcon } from '@heroicons/react/24/outline';
-import { ArrowDownCircleIcon, PlayCircleIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { TrashIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
-import Image from "next/image";
 
-enum Status {
-    Pending = 'Belum dikerjakan',
-    OnProgress = 'On progress',
-    Finished = 'Selesai'
-}
-
-interface ExtinguisherInspectionResult {
-    location: string;
-    brand: Status;
-    medium: string;
-    capacity: string;
-    note: string;
-}
+// enum Status {
+//     Pending = 'Belum dikerjakan',
+//     OnProgress = 'On progress',
+//     Finished = 'Selesai'
+// }
 
 export default function InspectionDetailPage() {
-    const extinguisherList:ExtinguisherInspectionResult[] = [
-        { location: 'Dekat Aula Depan Pintu', brand: Status.Finished, medium: '12 Maret 2025', capacity: 'Suryo', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-        { location: 'Ruang Inventory', brand: Status.Pending, medium: '20 April 2025', capacity: 'Tukiman', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-        { location: 'Lab 12P1', brand: Status.OnProgress, medium: '03 Mei 2025', capacity: 'Pardjo', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-    ];
+    // const extinguisherList:ExtinguisherInspectionResult[] = [
+    //     { location: 'Dekat Aula Depan Pintu', brand: Status.Finished, medium: '12 Maret 2025', capacity: 'Suryo', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    //     { location: 'Ruang Inventory', brand: Status.Pending, medium: '20 April 2025', capacity: 'Tukiman', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    //     { location: 'Lab 12P1', brand: Status.OnProgress, medium: '03 Mei 2025', capacity: 'Pardjo', note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    // ];
 
   return (
     <MainLayout appBarTitle='Pengguna' showNavBar={false}>

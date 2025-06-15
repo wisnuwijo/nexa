@@ -84,11 +84,10 @@ export default function ExtingisherPage() {
                         <div className="relative mb-12 text-gray-600">
                             <select
                                 className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
-                                onChange={(e) => {
+                                // onChange={(e) => {
                                     // Handle building filter change
-                                    const selectedBuilding = e.target.value;
-                                    // You can implement the filtering logic here
-                                }}
+                                    // const selectedBuilding = e.target.value;
+                                // }}
                             >
                                 <option value="">Semua gedung</option>
                                 <option value="building-a">Building A</option>

@@ -7,10 +7,10 @@ import { PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import Image from "next/image"
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { use, useState } from 'react'; // Removed useState as it's not needed for displaying history
+import { useState } from 'react'; // Removed useState as it's not needed for displaying history
 
-export default function InspectionExtinguisherList({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = use(params)
+export default function InspectionExtinguisherList() {
+    // const { id } = use(params)
     const router = useRouter()
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
 

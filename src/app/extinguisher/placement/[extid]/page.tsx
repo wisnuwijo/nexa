@@ -3,8 +3,7 @@
 import MainLayout from "@/app/components/main_layout"
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon, PlusCircleIcon } from "@heroicons/react/24/solid"
-import { useRouter } from "next/navigation"
-import { use, useState } from "react"
+import { useState } from "react"
 
 interface LocationItem {
     type: string
@@ -12,9 +11,9 @@ interface LocationItem {
     options: string[]
 }
 
-export default function ExtinguisherPlacementPage({ params }: { params: Promise<{ extid: string }> }) {
-    const { extid } = use(params)
-    const router = useRouter()
+export default function ExtinguisherPlacementPage() {
+    // const { extid } = use(params)
+    // const router = useRouter()
 
     const [building, setBuilding] = useState("")
     const [placement, setPlacemeent] = useState("")

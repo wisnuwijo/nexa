@@ -3,7 +3,6 @@
 import { CalendarDaysIcon, PlusIcon, UserIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import MainLayout from '../components/main_layout';
 
 interface UserData {
@@ -14,7 +13,6 @@ interface UserData {
 
 export default function InspectionPage() {
     const router = useRouter();
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const userList: UserData[] = [
         { name: 'Tristan', access: 'Administrator', createdAt: '21 Mar 2025' },
         { name: 'Wisnu', access: 'Inspektor', createdAt: '31 Jan 2025' },

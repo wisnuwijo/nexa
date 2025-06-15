@@ -15,12 +15,6 @@ export default function HomePage() {
     { inspector: 'Ana', action: 'failed', id: 12, reason: 'Low pressure', time: '4h ago' },
   ]);
 
-  const [overdueInspections] = useState([
-    { location: '3F-West', id: 45, daysOverdue: 5 },
-    { location: 'Kitchen', id: 12, daysOverdue: 3 },
-    { location: 'Garage', id: 78, daysOverdue: 2 },
-  ]);
-
   return (
     <MainLayout appBarTitle='' showNavBar={true}>
       <div className="min-h-screen bg-gray-50">
