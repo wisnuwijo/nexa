@@ -72,7 +72,7 @@ export default function LoginPage() {
 
           <div className="flex justify-end">
             <Link 
-              href="/forgot-password" 
+              href="/reset_password" 
               className="text-purple-600 hover:text-purple-700 text-sm font-medium active:scale-95 transition-transform py-2"
             >
               Lupa kata sandi?

@@ -1,10 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Register() {
+export default function ChangePassword() {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
@@ -12,7 +12,6 @@ export default function Register() {
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -24,131 +23,18 @@ export default function Register() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreeToTerms) {
-      alert('Please agree to the Terms & Conditions');
-      return;
-    }
     console.log('Registration submitted:', formData);
   };
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-0">
       <div className="w-full max-w-[320px] bg-white rounded-2xl p-6">
-        <h1 className="text-gray-900 text-xl font-bold text-center mb-2">Buat Akun</h1>
+        <h1 className="text-gray-900 text-xl font-bold text-center mb-2">Ubah Kata Sandi</h1>
         <p className="text-gray-500 text-center text-sm mb-6">
-          Isi informasi Anda di bawah ini untuk membuat akun.
+          Ubah kata sandi untuk akun anda.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Depan</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. John"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Belakang</label>
-            <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. Doe"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Telepon</label>
-            <input
-              type="number"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. +628383838383"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Username</label>
-            <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. john.doe"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. contoh@mail.com"
-              required
-              inputMode="email"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Jenis Organisasi</label>
-            <select name="organization" id="" className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
-              <option value="">Jenis organisasi</option>
-              <option value="company">Perusahaan</option>
-              <option value="personal">Perseorangan</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Perusahaan</label>
-            <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. PT. Sejahtera Selalu"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Alamat Perusahaan</label>
-            <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. Jl. Soekarno-Hatta Jakarta"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Gender</label>
-            <select name="organization" id="" className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
-              <option value="">Pilih gender</option>
-              <option value="male">Laki-laki</option>
-              <option value="female">Perempuan</option>
-            </select>
-          </div>
 
           <div>
             <label className="block text-gray-600 text-[13px] mb-1.5">Kata sandi</label>
@@ -214,28 +100,12 @@ export default function Register() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 mt-2">
-            <input
-              type="checkbox"
-              id="terms"
-              checked={agreeToTerms}
-              onChange={(e) => setAgreeToTerms(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-            />
-            <label htmlFor="terms" className="text-sm text-gray-600">
-              Menyetujui {' '}
-              <Link href="/terms" className="text-purple-600 hover:text-purple-700 font-medium">
-                Syarat & Ketentuan
-              </Link>
-            </label>
-          </div>
-
           <button
-            onClick={() => router.push("/register/verify_email")}
             type="submit"
+            onClick={() => router.push('/')}
             className="text-gray-600 w-full h-12 bg-purple-600 text-white rounded-xl hover:bg-purple-700 active:scale-[0.98] transition-all font-medium text-[15px] mt-"
           >
-            Daftar
+            Ubah Sandi
           </button>
         </form>
 
@@ -249,9 +119,9 @@ export default function Register() {
         </div>
 
         <p className="mt-8 text-center text-gray-600 text-sm">
-        Sudah punya akun?{' '}
-          <Link 
-            href="/login" 
+          Ingat kata sandi?{' '}
+          <Link
+            href="/login"
             className="text-purple-600 hover:text-purple-700 font-medium active:scale-95 transition-transform inline-block"
           >
             Masuk
