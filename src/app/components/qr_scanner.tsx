@@ -30,7 +30,7 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
                 });
               },
               (errorMessage: string) => {
-                // Optional: console.log("Scan error", errorMessage);
+                console.log("Scan error", errorMessage);
               }
             )
             .catch((err) => {
