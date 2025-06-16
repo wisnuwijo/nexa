@@ -16,7 +16,12 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
     Html5Qrcode.getCameras()
       .then((devices) => {
         if (devices && devices.length) {
-          const cameraId = devices[0].id;
+          // Cari kamera belakang berdasarkan nama label
+          const backCamera = devices.find((device) =>
+            device.label.toLowerCase().includes("back")
+          );
+
+          const cameraId = backCamera ? backCamera.id : devices[0].id;
 
           html5QrCode
             .start(
