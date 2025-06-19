@@ -57,7 +57,7 @@ export default function ExtingisherPage() {
     return (
         <MainLayout appBarTitle='' showNavBar={true}>
             <div className="min-h-screen bg-gray-50 relative">
-                <div className="max-w-[430px] sm:max-w-fit mx-auto px-4 pb-24">
+                <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                     {/* Header */}
                     <div className="flex justify-between items-center py-6">
                         <div>
@@ -98,7 +98,7 @@ export default function ExtingisherPage() {
                         </div>
 
                         {/* Extinguisher table */}
-                        <table className="hidden sm:block min-w-full divide-y divide-gray-200">
+                        <table className="hidden md:table w-full table-auto divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -165,7 +165,7 @@ export default function ExtingisherPage() {
                         </table>
 
                         {/* Mobile Cards (for responsive view) */}
-                        <div className='sm:hidden'>
+                        <div className='md:hidden'>
                             <div className="space-y-4 mt-5">
                                 {extinguishers.map((ext, index) => (
                                     <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">

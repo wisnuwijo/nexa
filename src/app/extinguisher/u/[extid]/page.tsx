@@ -5,7 +5,7 @@ export default function ExtinguisherUpdateDataPage() {
     
     return <MainLayout appBarTitle="Ubah Data APAR" showNavBar={false}>
         <div className="min-h-screen bg-gray-50 relative">
-            <div className="max-w-[430px] mx-auto px-4 pb-24 pt-20">
+            <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24 pt-20">
                 <form className="space-y-4">
                     <div>
                         <label className="block text-gray-600 text-[13px] mb-1.5">Brand</label>

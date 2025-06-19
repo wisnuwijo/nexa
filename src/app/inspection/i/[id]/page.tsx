@@ -81,7 +81,30 @@ export default function InspectionExtinguisherList() {
 
     return (
         <MainLayout appBarTitle='Inspeksi Juni' showNavBar={false}>
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center px-6 pt-16">
+            {/* Warning message */}
+            <div className="hidden md:flex flex-col items-center justify-center min-h-screen bg-gray-50">
+                <div className="max-w-md p-8 bg-white rounded-2xl shadow-lg text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <h2 className="text-2xl font-semibold text-gray-900">Perangkat Tidak Didukung</h2>
+                    <p className="text-gray-600">
+                        Inspeksi menggunakan perangkat desktop tidak didukung. Mohon gunakan perangkat ponsel untuk melakukan inspeksi.
+                    </p>
+                    <div className="pt-2">
+                        <span className="inline-flex items-center px-4 py-2 bg-purple-50 text-sm text-purple-700 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Buka di Perangkat Mobile
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="min-h-screen md:hidden bg-gray-50 flex flex-col items-center px-6 pt-16">
 
                 <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-3">
                     <p className="text-sm font-medium text-gray-500">

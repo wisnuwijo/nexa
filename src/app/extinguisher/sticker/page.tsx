@@ -22,7 +22,7 @@ export default function StickerPage() {
   return (
     <MainLayout appBarTitle='Stiker QR' showNavBar={true}>
         <div className="min-h-screen bg-gray-50 relative">
-            <div className="max-w-[430px] mx-auto px-4 pb-24">
+            <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                 {/* Header */}
                 <div className="flex justify-between items-center py-6 pt-20">
                 <div>

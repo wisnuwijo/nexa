@@ -40,7 +40,7 @@ export default function InspectionDetailPage() {
             <h1 className="text-xl font-semibold text-gray-900 mb-1">Inspeksi Mei</h1>
 
             {/* Inspection Details */}
-            <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-4 mt-8">
+            <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
                 <div className="flex justify-between">
                     <div>
                         <p className="text-sm text-gray-500">Tgl Dibuat</p>
@@ -68,7 +68,7 @@ export default function InspectionDetailPage() {
             </div>
 
             {/* Inspection Details */}
-            <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-4 mt-8">
+            <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
                 <div className="flex justify-between">
                     <div>
                         <p className="text-sm text-gray-500">Estimasi Penawaran</p>
@@ -87,7 +87,7 @@ export default function InspectionDetailPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="w-full max-w-sm space-y-3 mt-8">
+            <div className="w-full max-w-sm md:max-w-full space-y-3 mt-8">
                 <Link href="/inspection/i/83180142903" className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
                     <PlayCircleIcon width={20} height={20} className="inline-block mr-2"/>
                     Lanjut Inspeksi
@@ -100,7 +100,7 @@ export default function InspectionDetailPage() {
         </div>
         
         {/* List APAR */}
-        <div className="max-w-[430px] mx-auto px-4 pb-24">
+        <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
             {/* Header */}
             <div className="flex justify-between items-center py-6">
                 <div>

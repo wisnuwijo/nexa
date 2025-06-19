@@ -37,7 +37,7 @@ export default function ProfilePage() {
 
     return (
         <MainLayout appBarTitle='Profil' showNavBar={true}>
-            <div className="mx-auto pt-10 max-w-[430px] mx-auto px-4 pb-24">
+            <div className="mx-auto pt-10 max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                 {/* Profile Card */}
                 <div className="bg-white rounded-lg shadow mb-4">
                     <div className="bg-purple-600 p-4 text-center">

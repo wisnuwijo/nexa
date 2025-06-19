@@ -58,7 +58,7 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                 <h3 className="text-xl font-semibold text-gray-400 mb-1">{extid}</h3>
 
                 {/* Extinguisher Details */}
-                <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-4 mt-8">
+                <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
                     <div className="flex justify-between">
                         <div>
                             <p className="text-sm text-gray-500">Brand</p>
@@ -94,7 +94,7 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                 </div>
 
                 {/* Action Buttons */}
-                <div className="w-full max-w-sm space-y-3 mt-6">
+                <div className="w-full max-w-sm md:max-w-full space-y-3 mt-6">
                     <Link href="/extinguisher/u/1" className="block w-full bg-white border border-purple-600 text-purple-600 py-3 rounded-xl font-bold transition-colors text-center">
                         Edit APAR
                     </Link>
@@ -104,7 +104,7 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                 </div>
 
                 {/* Inspection History Log Display */}
-                <div className="w-full max-w-sm bg-white rounded-xl p-6 space-y-6 mt-8 mb-8">
+                <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-6 mt-8 mb-8">
                     <h2 className="text-lg font-semibold text-gray-900">Riwayat Inspeksi</h2>
                     {inspectionHistory.length > 0 ? (
                         inspectionHistory.map((log, index) => (
