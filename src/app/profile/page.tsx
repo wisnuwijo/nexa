@@ -9,6 +9,7 @@ import Link from 'next/link';
 export default function ProfilePage() {
     const router = useRouter();
     const [showAboutModal, setShowAboutModal] = useState(false);
+    const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
 
     // Mock user data
     const [user] = useState({
@@ -30,10 +31,50 @@ export default function ProfilePage() {
     ]);
 
     const handleLogout = () => {
-        // Add your logout logic here
-        console.log("User logged out");
+        setIsFinishModalOpen(false);
+
+        // Clear only the 'token' cookie
+        if (typeof document !== "undefined") {
+            document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+        }
+
         router.push('/login');
     };
+
+    const optionModal = <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsFinishModalOpen(false)}>
+        <div
+            className="fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl p-6"
+            onClick={e => e.stopPropagation()}
+        >
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+            <div className="space-y-4">
+                <h1 className="text-lg font-medium text-gray-900">Konfirmasi</h1>
+                <p className="text-sm text-gray-500">Apakah Anda yakin ingin keluar?</p>
+                <div className="flex gap-2">
+                    <div className="w-1/2">
+                        <button
+                            onClick={handleLogout}
+                            className="bg-purple-600 w-full text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center"
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <span>Ya</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div className="w-1/2">
+                        <button
+                            onClick={() => setIsFinishModalOpen(false)}
+                            className="bg-gray-100 w-full text-purple-600 py-3 rounded-xl font-medium hover:bg-purple-200 transition-colors text-center"
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <span>Tidak</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     return (
         <MainLayout appBarTitle='Profil' showNavBar={true}>
@@ -122,7 +163,7 @@ export default function ProfilePage() {
                             ℹ️ Tentang
                         </button>
                         <button
-                            onClick={handleLogout}
+                            onClick={() => setIsFinishModalOpen(true)}
                             className="text-red-600 text-sm flex items-center"
                         >
                             🔓 Keluar
@@ -153,6 +194,10 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 )}
+
+                <div className={isFinishModalOpen ? "block" : "hidden"}>
+                    {optionModal}
+                </div>
 
             </div>
         </MainLayout>

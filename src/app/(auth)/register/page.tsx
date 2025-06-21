@@ -1,39 +1,90 @@
 'use client';
 
+import { login, register, RegisterParams } from '@/api/auth';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 
 export default function Register() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<RegisterParams>({
     name: '',
+    username: '',
     email: '',
-    password: ''
+    password: '',
+    konfirmasi_password: '',
+    telpon: '',
+    nama_organisasi: '',
+    jenis_customer: '',
+    alamat: '',
+    email_organisasi: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreeToTerms) {
-      alert('Please agree to the Terms & Conditions');
+      toast.error('Anda harus menyetujui Syarat & Ketentuan sebelum mendaftar');
       return;
     }
-    console.log('Registration submitted:', formData);
+    if (formData.password !== formData.konfirmasi_password) {
+      toast.error('Kata sandi dan konfirmasi sandi harus sama');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await register(formData);
+      await toast.promise(
+        (async () => {
+          const res = await login(formData.email, formData.password);
+
+          setTimeout(() => {
+            // Simulate a delay for processing
+            if (res && res.token) {
+              document.cookie = `token=${res.token}; path=/; secure; samesite=strict`;
+              router.push('/home');
+            }
+          }, 1000);
+          return res;
+        })(),
+        {
+          pending: 'Registrasi berhasil! Memproses...',
+          success: 'Berhasil masuk',
+          error: {
+            render({ data }) {
+              let message = 'Terjadi kesalahan saat login. Silakan coba lagi.';
+              if (typeof data === 'string') {
+                message = data;
+              } else if (data instanceof Error) {
+                message = data.message;
+              }
+              return <p>{message}</p>;
+            }
+          }
+        }
+      );
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        toast.error(err.message || 'Registrasi gagal. Silakan coba lagi.');
+      } else if (typeof err === 'string') {
+        toast.error(err || 'Registrasi gagal. Silakan coba lagi.');
+      } else {
+        toast.error('Registrasi gagal. Silakan coba lagi.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-0">
       <div className="w-full max-w-[320px] bg-white rounded-2xl p-6">
+
+        <ToastContainer position="top-center" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+
         <h1 className="text-gray-900 text-xl font-bold text-center mb-2">Buat Akun</h1>
         <p className="text-gray-500 text-center text-sm mb-6">
           Isi informasi Anda di bawah ini untuk membuat akun.
@@ -41,40 +92,14 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Depan</label>
+            <label className="block text-gray-600 text-[13px] mb-1.5">Nama</label>
             <input
               type="text"
-              name="name"
               value={formData.name}
-              onChange={handleChange}
+              name='name'
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
               className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
               placeholder="Ex. John"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Belakang</label>
-            <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. Doe"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Telepon</label>
-            <input
-              type="number"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
-              className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. +628383838383"
               required
             />
           </div>
@@ -83,12 +108,19 @@ export default function Register() {
             <label className="block text-gray-600 text-[13px] mb-1.5">Username</label>
             <input
               type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
+              value={formData.username}
+              name='username'
+              pattern="^[a-zA-Z0-9]+$"
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^[a-zA-Z0-9]*$/.test(value)) {
+                  setFormData(prev => ({ ...prev, username: value }));
+                }
+              }}
               className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
               placeholder="Ex. john.doe"
               required
+              title="Username hanya boleh berisi huruf dan angka"
             />
           </div>
 
@@ -96,9 +128,9 @@ export default function Register() {
             <label className="block text-gray-600 text-[13px] mb-1.5">Email</label>
             <input
               type="email"
-              name="email"
               value={formData.email}
-              onChange={handleChange}
+              name='email'
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
               className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
               placeholder="Ex. contoh@mail.com"
               required
@@ -107,34 +139,67 @@ export default function Register() {
           </div>
 
           <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Jenis Organisasi</label>
-            <select name="organization" id="" className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
-              <option value="">Jenis organisasi</option>
-              <option value="company">Perusahaan</option>
-              <option value="personal">Perseorangan</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Nama Perusahaan</label>
+            <label className="block text-gray-600 text-[13px] mb-1.5">Telepon</label>
             <input
-              type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
+              type="number"
+              value={formData.telpon}
+              name='telepon'
+              onChange={(e) => setFormData(prev => ({ ...prev, telpon: e.target.value }))}
               className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-              placeholder="Ex. PT. Sejahtera Selalu"
+              placeholder="Ex. +628383838383"
               required
             />
           </div>
 
           <div>
-            <label className="block text-gray-600 text-[13px] mb-1.5">Alamat Perusahaan</label>
+            <label className="block text-gray-600 text-[13px] mb-1.5">Jenis Organisasi</label>
+            <select name="organization" value={formData.jenis_customer} onChange={(val) => {
+              setFormData(prev => ({ ...prev, jenis_customer: val.target.value }));
+            }} required className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
+              <option value="">Jenis organisasi</option>
+              <option value="COMPANY">Perusahaan</option>
+              <option value="PERSONAL">Perseorangan</option>
+            </select>
+          </div>
+
+          {
+            formData.jenis_customer != "PERSONAL" && <div>
+              <label className="block text-gray-600 text-[13px] mb-1.5">Nama Organisasi</label>
+              <input
+                type="text"
+                value={formData.nama_organisasi}
+                name='nama_organisasi'
+                onChange={(e) => setFormData(prev => ({ ...prev, nama_organisasi: e.target.value }))}
+                className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
+                placeholder="Ex. PT. Sejahtera Selalu"
+                required
+              />
+            </div>
+          }
+
+          {
+            formData.jenis_customer != "PERSONAL" && <div>
+              <label className="block text-gray-600 text-[13px] mb-1.5">Email Organisasi</label>
+              <input
+                type="email"
+                value={formData.email_organisasi}
+                name='email_organisasi'
+                onChange={(e) => setFormData(prev => ({ ...prev, email_organisasi: e.target.value }))}
+                className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
+                placeholder="Ex. contoh@mail.com"
+                required
+                inputMode="email"
+              />
+            </div>
+          }
+
+          <div>
+            <label className="block text-gray-600 text-[13px] mb-1.5">Alamat</label>
             <input
               type="text"
-              name="name"
-              // value={formData.name}
-              // onChange={handleChange}
+              value={formData.alamat}
+              name='alamat'
+              onChange={(e) => setFormData(prev => ({ ...prev, alamat: e.target.value }))}
               className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
               placeholder="Ex. Jl. Soekarno-Hatta Jakarta"
               required
@@ -155,9 +220,9 @@ export default function Register() {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                name="password"
                 value={formData.password}
-                onChange={handleChange}
+                name='password'
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
                 className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
                 placeholder="••••••••••••••"
                 required
@@ -187,9 +252,9 @@ export default function Register() {
             <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
+                value={formData.konfirmasi_password}
+                name='konfirmasi_password'
+                onChange={(e) => setFormData(prev => ({ ...prev, konfirmasi_password: e.target.value }))}
                 className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
                 placeholder="••••••••••••••"
                 required
@@ -231,11 +296,12 @@ export default function Register() {
           </div>
 
           <button
-            onClick={() => router.push("/register/verify_email")}
             type="submit"
             className="text-gray-600 w-full h-12 bg-purple-600 text-white rounded-xl hover:bg-purple-700 active:scale-[0.98] transition-all font-medium text-[15px] mt-"
+            disabled={isSubmitting}
+            style={isSubmitting ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
           >
-            Daftar
+            {isSubmitting ? 'Mendaftar...' : 'Daftar'}
           </button>
         </form>
 
@@ -249,9 +315,9 @@ export default function Register() {
         </div>
 
         <p className="mt-8 text-center text-gray-600 text-sm">
-        Sudah punya akun?{' '}
-          <Link 
-            href="/login" 
+          Sudah punya akun?{' '}
+          <Link
+            href="/login"
             className="text-purple-600 hover:text-purple-700 font-medium active:scale-95 transition-transform inline-block"
           >
             Masuk

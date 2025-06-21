@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function camera(request: NextRequest) {
+export function camera_middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Check if user has already been through permission check
