@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify';
 export default function Register() {
   const router = useRouter();
   const [formData, setFormData] = useState<RegisterParams>({
+    gender: '',
     name: '',
     username: '',
     email: '',
@@ -208,7 +209,7 @@ export default function Register() {
 
           <div>
             <label className="block text-gray-600 text-[13px] mb-1.5">Gender</label>
-            <select name="organization" id="" className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
+            <select onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value }))} name="organization" id="" className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]">
               <option value="">Pilih gender</option>
               <option value="male">Laki-laki</option>
               <option value="female">Perempuan</option>

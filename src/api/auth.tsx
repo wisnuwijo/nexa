@@ -28,6 +28,7 @@ export async function login(email: string, password: string) {
 export type RegisterParams = {
     name: string;
     username: string;
+    gender: string;
     email: string;
     password: string;
     konfirmasi_password: string;
