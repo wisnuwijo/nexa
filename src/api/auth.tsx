@@ -43,6 +43,7 @@ export async function register(params: RegisterParams) {
     const formData = new FormData();
     formData.append('name', params.name);
     formData.append('username', params.username);
+    formData.append('gender', params.gender);
     formData.append('email', params.email);
     formData.append('password', params.password);
     formData.append('nama_organisasi', params.jenis_customer == "PERSONAL" ? params.name : params.nama_organisasi);

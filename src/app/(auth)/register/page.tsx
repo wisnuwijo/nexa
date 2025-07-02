@@ -35,6 +35,7 @@ export default function Register() {
       toast.error('Kata sandi dan konfirmasi sandi harus sama');
       return;
     }
+
     setIsSubmitting(true);
     try {
       await register(formData);
