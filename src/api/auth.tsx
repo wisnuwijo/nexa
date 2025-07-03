@@ -25,20 +25,6 @@ export async function login(email: string, password: string) {
     return res.json();
 }
 
-export type RegisterParams = {
-    name: string;
-    username: string;
-    gender: string;
-    email: string;
-    password: string;
-    konfirmasi_password: string;
-    nama_organisasi: string;
-    jenis_customer: string;
-    alamat: string;
-    telpon: string;
-    email_organisasi: string;
-};
-
 export async function register(params: RegisterParams) {
     const formData = new FormData();
     formData.append('name', params.name);
@@ -103,3 +89,36 @@ export async function register(params: RegisterParams) {
     }
     return res.json();
 }
+
+export type User = {
+    id: number;
+    name: string;
+    username: string;
+    email: string;
+    email_verified_at: string | null;
+    code_verifikasi: string | null;
+    akun_aktif: number;
+    id_level: number;
+    gender: string;
+    kode_customer: string;
+    image: string | null;
+    created_by: string | null;
+    created_at: string;
+    updated_by: string | null;
+    updated_at: string;
+    deleted_at: string | null;
+};
+
+export type RegisterParams = {
+    name: string;
+    username: string;
+    gender: string;
+    email: string;
+    password: string;
+    konfirmasi_password: string;
+    nama_organisasi: string;
+    jenis_customer: string;
+    alamat: string;
+    telpon: string;
+    email_organisasi: string;
+};

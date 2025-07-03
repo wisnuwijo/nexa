@@ -5,6 +5,7 @@ import MainLayout from '../components/main_layout';
 import { useRouter } from 'next/navigation';
 import { UsersIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link';
+import { User } from '@/api/auth';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -12,15 +13,37 @@ export default function ProfilePage() {
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
 
     // Mock user data
-    const [user] = useState({
-        name: "Wisnu Wijokangko",
-        role: "Inspektor Kebakaran",
-        email: "ahmad@example.com",
-        phone: "+628123456789",
-        certification: "Bersertifikat NFPA 10",
-        lastCertified: "15 Mar 2024",
-        inspectionsCompleted: 147,
-        avatar: "👨‍🚒"
+    const [user, setUser] = useState(() => {
+        if (typeof window !== "undefined") {
+            const storedUser = localStorage.getItem("user");
+            if (storedUser) {
+                try {
+                    return JSON.parse(storedUser) as User;
+                } catch {
+                    // fallback to default if parsing fails
+                }
+            }
+        }
+        
+        // Default user data if no user is stored
+        return {
+            id: 0,
+            name: "",
+            username: "",
+            email: "",
+            email_verified_at: null,
+            code_verifikasi: null,
+            akun_aktif: 1,
+            id_level: 1,
+            created_at: "2025-01-01T00:00:00Z",
+            updated_at: "2025-01-01T00:00:00Z",
+            deleted_at: null,
+            image: null,
+            created_by: null,
+            updated_by: null,
+            gender: "male",
+            kode_customer: "",
+        } as User;
     });
 
     // Mock recent inspections
@@ -82,16 +105,16 @@ export default function ProfilePage() {
                 {/* Profile Card */}
                 <div className="bg-white rounded-lg shadow mb-4">
                     <div className="bg-purple-600 p-4 text-center">
-                        <div className="text-5xl pt-5">{user.avatar}</div>
+                        <div className="text-5xl pt-5">👨‍🚒</div>
                         <h2 className="text-lg font-bold text-white">{user.name}</h2>
-                        <p className="text-blue-100 text-sm">{user.role}</p>
+                        <p className="text-blue-100 text-sm">Administrator</p>
                     </div>
 
                     <div className="p-4 space-y-3">
                         <ProfileDetail label="Email" value={user.email} />
-                        <ProfileDetail label="Telepon" value={user.phone} />
-                        <ProfileDetail label="Sertifikasi" value={user.certification} />
-                        <ProfileDetail label="Berlaku hingga" value={user.lastCertified} />
+                        <ProfileDetail label="Telepon" value={"+62812345689"} />
+                        <ProfileDetail label="Sertifikasi" value={"NFPA 220"} />
+                        <ProfileDetail label="Berlaku hingga" value={"2029"} />
 
                         <button className="w-full bg-purple-600 text-white py-2 rounded-lg text-sm">
                             Edit Profil
@@ -101,7 +124,7 @@ export default function ProfilePage() {
 
                 {/* Stats - Horizontal Scroll */}
                 <div className="flex flex-row overflow-x-auto gap-2 pb-2 no-scrollbar justify-between items-center">
-                    <StatCard title="Total Inspeksi" value={user.inspectionsCompleted} icon="🧯" />
+                    <StatCard title="Total Inspeksi" value="12" icon="🧯" />
                     <StatCard title="Kelulusan" value="89%" icon="✅" isGood />
                     <StatCard title="Perlu Tindakan" value="7" icon="⚠️" isWarning />
                 </div>
@@ -177,11 +200,9 @@ export default function ProfilePage() {
                         <div className="bg-white rounded-lg p-4 mx-4 w-full max-w-xs">
                             <h2 className="text-lg text-gray-500 font-bold mb-2">Tentang Aplikasi</h2>
                             <p className="text-sm text-gray-500 mb-4">
-                                Aplikasi Inspeksi APAR v1.2.0
+                                Aplikasi NEXA v1.0.0
                                 <br />
-                                Dibangun untuk memenuhi standar NFPA 10
-                                <br />
-                                © 2024 FireSafety Team
+                                © 2025 PT Tan Anugerah Sejahtera
                             </p>
                             <div className="flex justify-end">
                                 <button

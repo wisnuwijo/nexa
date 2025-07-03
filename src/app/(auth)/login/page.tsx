@@ -1,6 +1,6 @@
 'use client';
 
-import { login } from '@/api/auth';
+import { login, User } from '@/api/auth';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState, Suspense } from 'react';
@@ -28,6 +28,11 @@ function LoginPageInner() {
         // Store JWT token to cookies
         if (res && res.token) {
           document.cookie = `token=${res.token}; path=/; secure; samesite=strict`;
+
+          if (res.user) {
+            localStorage.setItem('user', JSON.stringify(res.user));
+          }
+
           router.push(redirectPath);
         }
         return res;
