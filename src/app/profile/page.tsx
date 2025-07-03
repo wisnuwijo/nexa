@@ -13,7 +13,7 @@ export default function ProfilePage() {
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
 
     // Mock user data
-    const [user, setUser] = useState(() => {
+    const [user] = useState(() => {
         if (typeof window !== "undefined") {
             const storedUser = localStorage.getItem("user");
             if (storedUser) {

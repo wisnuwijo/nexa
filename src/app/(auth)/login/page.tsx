@@ -1,10 +1,10 @@
 'use client';
 
-import { login, User } from '@/api/auth';
+import { login } from '@/api/auth';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, Suspense } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function LoginPageInner() {
