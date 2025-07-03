@@ -32,7 +32,7 @@ export default function HomePage() {
     console.log("User from localStorage:", user);
     if (!usr) {
       // Redirect to login if not logged in
-      window.location.href = '/auth/login?redirect=/home';
+      window.location.href = '/login?redirect=/home';
     } else if (user == null) {
       // Parse user data and set it in localStorage
       const parsedUser = JSON.parse(usr) as User;
