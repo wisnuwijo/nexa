@@ -4,51 +4,47 @@ import { DocumentArrowDownIcon, EllipsisHorizontalIcon, QrCodeIcon } from '@hero
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getExtinguisherList, Extinguisher } from '../../api/extinguisher';
 import MainLayout from '../components/main_layout';
 
-type Extinguisher2 = {
-    id: string;
-    location: string;
-    brand: string;
-    image: string;
-    unitNumber: string;
-    capacity: string;
-    media: string;
-    expiryDate: string;
-    lastInspection: string;
-};
+// Remove Extinguisher2, use Extinguisher from API
 
 export default function ExtingisherPage() {
+    function formatDate(dateStr: string) {
+        if (!dateStr) return '-';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+        }).replace(/ /g, ' ');
+    }
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [extinguishers, setExtinguishers] = useState<Extinguisher[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    // Mock data
-    const [extinguishers] = useState<Extinguisher2[]>([
-        {
-            id: "ext-001",
-            unitNumber: "APAR-001",
-            capacity: "6 kg",
-            media: "Dry Powder",
-            expiryDate: "15/10/2025",
-            lastInspection: "10/06/2024",
-            image: '/images/extinguisher.svg',
-            brand: 'Tanexa',
-            location: 'Depan Gerbang Utama'
-        },
-        {
-            id: "ext-002",
-            unitNumber: "APAR-002",
-            capacity: "9 kg",
-            media: "CO₂",
-            expiryDate: "20/09/2024",
-            lastInspection: "05/06/2024",
-            image: '/images/extinguisher.svg',
-            brand: 'Tanexa',
-            location: 'Depan Gerbang Utama'
-        },
-        // Add more data as needed
-    ]);
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                setLoading(true);
+                const data = await getExtinguisherList();
+                setExtinguishers(data);
+            } catch (err: unknown) {
+                if (err instanceof Error) {
+                    setError(err.message);
+                } else {
+                    setError('Gagal mengambil detail APAR');
+                }
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, []);
 
     const handleViewDetail = (id: string) => {
         router.push(`/extinguisher/d/${id}`);
@@ -101,121 +97,109 @@ export default function ExtingisherPage() {
                         <table className="hidden md:table w-full table-auto divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        No Unit
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Lokasi
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Brand
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kapasitas
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Media
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kadaluarsa
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Inspeksi
-                                    </th>
-                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Aksi
-                                    </th>
+                                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No Unit</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Brand</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kapasitas</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Media</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kadaluarsa</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inspeksi</th>
+                                    <th scope="col" className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {extinguishers.map((ext) => (
-                                    <tr key={ext.id} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {ext.unitNumber}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {ext.location}
-                                        </td>
-                                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {ext.brand}
-                                        </td>
-                                        <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
-                                            {ext.capacity}
-                                        </td>
-                                        <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
-                                            {ext.media}
-                                        </td>
-                                        <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
-                                            {ext.expiryDate}
-                                        </td>
-                                        <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
-                                            {ext.lastInspection}
-                                        </td>
-                                        <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
-                                            <button
-                                                onClick={() => handleViewDetail(ext.id)}
-                                                className="text-blue-600 hover:text-blue-800 text-xs font-medium"
-                                            >
-                                                Lihat
-                                            </button>
-                                        </td>
+                                {loading ? (
+                                    <tr>
+                                        <td colSpan={8} className="py-8 text-center text-gray-400 animate-pulse">Memuat data APAR...</td>
                                     </tr>
-                                ))}
+                                ) : error ? (
+                                    <tr>
+                                        <td colSpan={8} className="py-8 text-center text-red-500">{error}</td>
+                                    </tr>
+                                ) : extinguishers.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="py-8 text-center text-gray-400">Tidak ada data APAR.</td>
+                                    </tr>
+                                ) : (
+                                    extinguishers.map((ext) => (
+                                        <tr key={ext.id} className="hover:bg-gray-50">
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.kode_barang}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.lokasi || '- - -'}</td>
+                                            <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.brand}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.kapasitas} kg</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.media}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(ext.tgl_kadaluarsa)}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.last_inspection || '- - -'}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
+                                                <button
+                                                    onClick={() => handleViewDetail(ext.kode_barang)}
+                                                    className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                                                >
+                                                    Lihat
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
 
                         {/* Mobile Cards (for responsive view) */}
                         <div className='md:hidden'>
                             <div className="space-y-4 mt-5">
-                                {extinguishers.map((ext, index) => (
-                                    <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">
-                                        <Link key={index} href={'/extinguisher/d/' + index}>
-                                            <div className="flex space-x-4">
-                                                <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
-                                                    <Image
-                                                        src={ext.image}
-                                                        alt={ext.location}
-                                                        width={20}
-                                                        height={20}
-                                                        className="object-contain"
-                                                    />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="font-medium text-base">
-                                                        <span className='text-gray-900'>
-                                                            {ext.location}
-                                                        </span>
-                                                        <span className='ml-3 text-gray-400'>
-                                                            #{ext.unitNumber}
-                                                        </span>
-                                                    </h3>
-                                                    <div className="grid grid-cols-3 gap-2">
-                                                        <div className="text-left">
-                                                            <p className="text-xs text-gray-500">Brand</p>
-                                                            <p className="text-sm font-medium text-gray-700">{ext.brand}</p>
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <p className="text-xs text-gray-500">Media</p>
-                                                            <p className="text-sm font-medium text-gray-700">{ext.media}</p>
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <p className="text-xs text-gray-500">Kapasitas</p>
-                                                            <p className="text-sm font-medium text-gray-700">{ext.capacity}</p>
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <p className="text-xs text-gray-500">Kadaluarsa</p>
-                                                            <p className="text-sm font-medium text-gray-700">{ext.expiryDate}</p>
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <p className="text-xs text-gray-500">Inspeksi</p>
-                                                            <p className="text-sm font-medium text-gray-700">{ext.lastInspection}</p>
+                                {loading ? (
+                                    <div className="bg-white p-4 rounded-2xl shadow-sm animate-pulse text-center text-gray-400">Memuat data APAR...</div>
+                                ) : error ? (
+                                    <div className="bg-white p-4 rounded-2xl shadow-sm text-center text-red-500">{error}</div>
+                                ) : extinguishers.length === 0 ? (
+                                    <div className="bg-white p-4 rounded-2xl shadow-sm text-center text-gray-400">Tidak ada data APAR.</div>
+                                ) : (
+                                    extinguishers.map((ext) => (
+                                        <div key={ext.id} className="bg-white p-4 rounded-2xl shadow-sm">
+                                            <Link href={'/extinguisher/d/' + ext.id}>
+                                                <div className="flex space-x-4">
+                                                    <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
+                                                        <Image
+                                                            src={'/images/extinguisher.svg'}
+                                                            alt={ext.lokasi || '-'}
+                                                            width={20}
+                                                            height={20}
+                                                            className="object-contain"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h3 className="font-medium text-base">
+                                                            <span className='text-gray-900'>{ext.lokasi || '- - -'}</span>
+                                                            <span className='ml-3 text-gray-400'>#{ext.kode_barang}</span>
+                                                        </h3>
+                                                        <div className="grid grid-cols-3 gap-2">
+                                                            <div className="text-left">
+                                                                <p className="text-xs text-gray-500">Brand</p>
+                                                                <p className="text-sm font-medium text-gray-700">{ext.brand}</p>
+                                                            </div>
+                                                            <div className="text-left">
+                                                                <p className="text-xs text-gray-500">Media</p>
+                                                                <p className="text-sm font-medium text-gray-700">{ext.media}</p>
+                                                            </div>
+                                                            <div className="text-left">
+                                                                <p className="text-xs text-gray-500">Kapasitas</p>
+                                                                <p className="text-sm font-medium text-gray-700">{ext.kapasitas} kg</p>
+                                                            </div>
+                                                            <div className="text-left">
+                                                                <p className="text-xs text-gray-500">Kadaluarsa</p>
+                                                                <p className="text-sm font-medium text-gray-700">{formatDate(ext.tgl_kadaluarsa)}</p>
+                                                            </div>
+                                                            <div className="text-left">
+                                                                <p className="text-xs text-gray-500">Inspeksi</p>
+                                                                <p className="text-sm font-medium text-gray-700">{ext.last_inspection || '-'}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </Link>
-                                    </div>
-                                ))}
+                                            </Link>
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

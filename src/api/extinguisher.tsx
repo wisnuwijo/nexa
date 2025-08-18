@@ -221,3 +221,65 @@ export async function getQrStickerList(): Promise<QrSticker[]> {
     const result: QrStickerListResponse = await res.json();
     return result.data;
 }
+
+export type ExtinguisherDetail = Extinguisher & {
+    detail_pressure: string | null;
+    detail_hose: string | null;
+    detail_head_valve: string | null;
+    detail_korosi: string | null;
+    detail_expired: string | null;
+};
+
+// temporary as response provide no example
+type ExtinguisherHistoryItem = Record<string, unknown>;
+
+export type ExtinguisherDetailResponse = {
+    success: boolean;
+    message: string;
+    data: ExtinguisherDetail;
+    history: ExtinguisherHistoryItem[];
+};
+
+export async function getExtinguisherDetail(id_barang: string): Promise<ExtinguisherDetailResponse> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const formData = new FormData();
+    formData.append('id_barang', id_barang);
+
+    const res = await fetch('https://nexadev.cloud/nexa-backend/public/api/product/detai_apar', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil detail APAR.');
+    }
+
+    const result: ExtinguisherDetailResponse = await res.json();
+    if (!result.success) {
+        throw new Error(result.message || 'Gagal mengambil detail APAR.');
+    }
+    return result;
+}
