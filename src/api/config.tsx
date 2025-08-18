@@ -1,1 +1,1 @@
-export const API_BASE_URL = 'https://nexa.dygdaya.com/api';
+export const API_BASE_URL = 'https://nexadev.cloud/nexa-backend/public/api';

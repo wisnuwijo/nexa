@@ -38,7 +38,7 @@ export default function HomePage() {
       const parsedUser = JSON.parse(usr) as User;
       setUser(parsedUser);
     }
-  }, []);
+  });
 
   return (
     <MainLayout appBarTitle='' showNavBar={true}>

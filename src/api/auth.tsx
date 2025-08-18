@@ -1,5 +1,14 @@
 import { API_BASE_URL } from "./config";
 
+export function logout() {
+    // Clear only the 'token' cookie
+    if (typeof document !== "undefined") {
+        document.cookie = "token=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+    }
+
+    localStorage.clear();
+}
+
 export async function login(email: string, password: string) {
     const formData = new FormData();
     formData.append('email', email);
@@ -21,6 +30,31 @@ export async function login(email: string, password: string) {
         
         console.log("res.body", res.body);
         throw new Error('Login gagal.');
+    }
+    return res.json();
+}
+
+export async function resetPassword(email: string) {
+    const res = await fetch(`${API_BASE_URL}/forget_password`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            email: email
+        }),
+    });
+
+    if (!res.ok) {
+        if (res.status === 404) {
+            throw new Error('Email tidak ditemukan.');
+        } else if (res.status === 422) {
+            throw new Error('Email tidak valid.');
+        }
+        
+        console.log("res.body", res.body);
+        throw new Error('Reset password gagal.');
     }
     return res.json();
 }
@@ -88,6 +122,26 @@ export async function register(params: RegisterParams) {
         throw new Error('Registrasi gagal.');
     }
     return res.json();
+}
+
+export function getCurrentUser(): User | null {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+        return null;
+    }
+    
+    try {
+        const userJson = localStorage.getItem('user');
+        if (!userJson) {
+            return null;
+        }
+        
+        const userData = JSON.parse(userJson);
+        return userData as User;
+    } catch (error) {
+        console.error('Error parsing user data from localStorage:', error);
+        return null;
+    }
 }
 
 export type User = {

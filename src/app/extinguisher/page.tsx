@@ -247,7 +247,7 @@ export default function ExtingisherPage() {
                                     }}
                                 >
                                     <QrCodeIcon className="w-6 h-6 text-purple-600" />
-                                    <span className="text-gray-700">Generate QR</span>
+                                    <span className="text-gray-700">Kelola Stiker QR</span>
                                 </button>
                                 <button
                                     className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors"

@@ -28,10 +28,7 @@ function LoginPageInner() {
         // Store JWT token to cookies
         if (res && res.token) {
           document.cookie = `token=${res.token}; path=/; secure; samesite=strict`;
-
-          if (res.user) {
-            localStorage.setItem('user', JSON.stringify(res.user));
-          }
+          localStorage.setItem('user', JSON.stringify(res.user));
 
           router.push(redirectPath);
         }

@@ -25,7 +25,7 @@ function WelcomeContent() {
         setTimeout(() => {
             setCameraPermissionChecked(!cameraPermissionChecked);
         }, 900); // Delay for 900ms before checking the permission to avoid flickering on the screen when the permission is not checked yet
-    }, []);
+    });
 
     const checkCameraPermission = async () => {
         try {
