@@ -158,7 +158,7 @@ export async function getExtinguisherList(): Promise<Extinguisher[]> {
         throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
     }
 
-    const res = await fetch('https://nexadev.cloud/nexa-backend/public/api/product/list_apar', {
+    const res = await fetch(`${API_BASE_URL}/product/list_apar`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -257,7 +257,7 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
     const formData = new FormData();
     formData.append('id_barang', id_barang);
 
-    const res = await fetch('https://nexadev.cloud/nexa-backend/public/api/product/detai_apar', {
+    const res = await fetch(`${API_BASE_URL}/product/detai_apar`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
