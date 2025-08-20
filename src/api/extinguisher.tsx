@@ -283,3 +283,76 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
     }
     return result;
 }
+    // Update extinguisher request
+    export type UpdateExtinguisherParams = {
+        id: string;
+        deskripsi: string;
+        brand: string;
+        type: string;
+        media: string;
+        kapasitas: string;
+        tanggal_produksi: string; // Format: YYYY-MM-DD
+        tanggal_kadaluarsa: string; // Format: YYYY-MM-DD
+        lokasi: string;
+        titik_penempatan_id: string;
+    };
+
+    export type UpdateExtinguisherResponse = {
+        success: boolean;
+        message: string;
+    };
+
+    export async function updateExtinguisher(params: UpdateExtinguisherParams): Promise<UpdateExtinguisherResponse> {
+        // Get token from cookies
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+        if (!token) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+        }
+
+        const formData = new FormData();
+        formData.append('id', params.id);
+        if (params.deskripsi) formData.append('deskripsi', params.deskripsi);
+        if (params.brand) formData.append('brand', params.brand);
+        if (params.type) formData.append('type', params.type);
+        if (params.media) formData.append('media', params.media);
+        if (params.kapasitas) formData.append('kapasitas', params.kapasitas);
+        if (params.tanggal_produksi) formData.append('tanggal_produksi', params.tanggal_produksi);
+        if (params.tanggal_kadaluarsa) formData.append('tanggal_kadaluarsa', params.tanggal_kadaluarsa);
+        if (params.lokasi) formData.append('lokasi', params.lokasi);
+        if (params.titik_penempatan_id) formData.append('titik_penempatan_id', params.titik_penempatan_id);
+
+        const res = await fetch(`${API_BASE_URL}/product/update_apar`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                // Do NOT set Content-Type when using FormData
+            },
+            body: formData,
+        });
+
+        if (!res.ok) {
+            if (res.status === 401) {
+                setTimeout(() => {
+                    logout();
+                    window.location.reload();
+                }, 2000);
+                throw new Error('Sesi telah berakhir. Silakan login kembali.');
+            }
+            throw new Error('Gagal memperbarui produk.');
+        }
+
+        const result: UpdateExtinguisherResponse = await res.json();
+        if (!result.success) {
+            throw new Error(result.message || 'Gagal memperbarui produk.');
+        }
+        return result;
+    }

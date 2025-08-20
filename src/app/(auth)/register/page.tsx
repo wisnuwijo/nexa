@@ -46,6 +46,7 @@ export default function Register() {
           setTimeout(() => {
             // Simulate a delay for processing
             if (res && res.token) {
+              localStorage.setItem('user', JSON.stringify(res.user));
               document.cookie = `token=${res.token}; path=/; secure; samesite=strict`;
               router.push('/home');
             }

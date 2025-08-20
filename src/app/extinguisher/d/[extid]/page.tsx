@@ -112,10 +112,10 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
 
                         {/* Action Buttons */}
                         <div className="w-full max-w-sm md:max-w-full space-y-3 mt-6">
-                            <Link href={`/extinguisher/u/${extinguisher.id}`} className="block w-full bg-white border border-purple-600 text-purple-600 py-3 rounded-xl font-bold transition-colors text-center">
+                            <Link href={`/extinguisher/u/${extinguisher.kode_barang}`} className="block w-full bg-white border border-purple-600 text-purple-600 py-3 rounded-xl font-bold transition-colors text-center">
                                 Edit APAR
                             </Link>
-                            <Link href={`/extinguisher/placement/${extinguisher.kode_barang}`} className="block w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors text-center">
+                            <Link href={`/extinguisher/placement/${extinguisher.id}`} className="block w-full bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors text-center">
                                 Ubah Penempatan APAR
                             </Link>
                         </div>

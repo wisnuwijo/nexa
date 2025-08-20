@@ -3,7 +3,10 @@
 import MainLayout from "@/app/components/main_layout"
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon, PlusCircleIcon } from "@heroicons/react/24/solid"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { getLocationList, Location } from '@/api/location';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface LocationItem {
     type: string
@@ -19,6 +22,19 @@ export default function ExtinguisherPlacementPage() {
     const [placement, setPlacemeent] = useState("")
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeAddLocation, setActiveAddLocation] = useState<LocationItem | null>(null);
+    const [buildingOptions, setBuildingOptions] = useState<string[]>([]);
+    useEffect(() => {
+        async function fetchBuildings() {
+            try {
+                const locations: Location[] = await getLocationList();
+                setBuildingOptions(locations.map(loc => loc.nama_gedung));
+            } catch (err) {
+                // Optionally handle error
+                toast.error("Terjadi kesalahan saat mengambil data gedung: " + (err instanceof Error ? err.message : "Unknown error"));
+            }
+        }
+        fetchBuildings();
+    }, []);
 
     const handleAddLocation = (item: LocationItem) => {
         setActiveAddLocation(item)
@@ -73,7 +89,7 @@ export default function ExtinguisherPlacementPage() {
                 <form className="space-y-4">
                     <div>
                         <label className="block text-gray-600 text-[13px] mb-1.5">Gedung</label>
-                        {locationDropdown({ type: "building", value: building, options: ["Gedung 1", "Gedung 2"] })}
+                        {locationDropdown({ type: "building", value: building, options: buildingOptions })}
                     </div>
 
                     <div>
