@@ -7,8 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getExtinguisherList, Extinguisher } from '../../api/extinguisher';
 import MainLayout from '../components/main_layout';
-
-// Remove Extinguisher2, use Extinguisher from API
+import { getLocationList, Location } from '@/api/location';
 
 export default function ExtingisherPage() {
     function formatDate(dateStr: string) {
@@ -24,6 +23,7 @@ export default function ExtingisherPage() {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [extinguishers, setExtinguishers] = useState<Extinguisher[]>([]);
+    const [locations, setLocations] = useState<Location[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -31,8 +31,10 @@ export default function ExtingisherPage() {
         async function fetchData() {
             try {
                 setLoading(true);
-                const data = await getExtinguisherList();
-                setExtinguishers(data);
+                const extList = await getExtinguisherList();
+                const locationList = await getLocationList();
+                setExtinguishers(extList);
+                setLocations(locationList);
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     setError(err.message);
@@ -77,7 +79,7 @@ export default function ExtingisherPage() {
                         </div>
 
                         {/* Building Filter */}
-                        <div className="relative mb-12 text-gray-600">
+                        <div className={`relative mb-12 text-gray-600 ${locations.length === 0 ? 'hidden' : ''}`}>
                             <select
                                 className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
                                 // onChange={(e) => {
@@ -86,9 +88,11 @@ export default function ExtingisherPage() {
                                 // }}
                             >
                                 <option value="">Semua gedung</option>
-                                <option value="building-a">Building A</option>
-                                <option value="building-b">Building B</option>
-                                <option value="building-c">Building C</option>
+                                {
+                                    locations.map(location => (
+                                        <option key={location.id} value={location.id}>{location.nama_gedung}</option>
+                                    ))
+                                }
                             </select>
                             <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🏢</span>
                         </div>
@@ -156,7 +160,7 @@ export default function ExtingisherPage() {
                                 ) : (
                                     extinguishers.map((ext) => (
                                         <div key={ext.id} className="bg-white p-4 rounded-2xl shadow-sm">
-                                            <Link href={'/extinguisher/d/' + ext.id}>
+                                            <Link href={'/extinguisher/d/' + ext.kode_barang}>
                                                 <div className="flex space-x-4">
                                                     <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
                                                         <Image
