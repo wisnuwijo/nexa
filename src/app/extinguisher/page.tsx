@@ -130,11 +130,11 @@ export default function ExtingisherPage() {
                                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.kode_barang}</td>
                                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.lokasi || '- - -'}</td>
                                             <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.brand}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.kapasitas} kg</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.media}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{formatDate(ext.tgl_kadaluarsa)}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">{ext.last_inspection || '- - -'}</td>
-                                            <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-500">
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.kapasitas} kg</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.media}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{formatDate(ext.tgl_kadaluarsa)}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{ext.last_inspection || '- - -'}</td>
+                                            <td className="px-2 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
                                                 <button
                                                     onClick={() => handleViewDetail(ext.kode_barang)}
                                                     className="text-blue-600 hover:text-blue-800 text-xs font-medium"

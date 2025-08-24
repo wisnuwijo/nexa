@@ -1,6 +1,75 @@
 import { logout } from "./auth";
 import { API_BASE_URL } from "./config";
 
+export type InspectionItem = {
+    id: number;
+    no_jadwal: string;
+    inspeksi_title: string;
+    inspeksi_pic: string;
+    inspeksi_no_hp_pic: string | null;
+    jumlah_apar: number | null;
+    status: string;
+    tgl_mulai: string;
+    tgl_selesai: string;
+    tgl_mulai_sebenarnya: string | null;
+    tgl_selesai_sebenarnya: string | null;
+    kode_customer: string;
+    kode_activity: string;
+    keterangan: string;
+    created_at: string;
+    deleted_at: string | null;
+    updated_at: string;
+    created_by: string;
+    execute_by: string;
+    inspection_name: string;
+};
+
+export type InspectionListResponse = {
+    message: string;
+    data_list_inspeksi: InspectionItem[];
+};
+
+export async function getInspectionList(): Promise<InspectionItem[]> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/inspection/list_inspection`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil daftar inspeksi.');
+    }
+
+    const result: InspectionListResponse = await res.json();
+    if (!result.data_list_inspeksi || !Array.isArray(result.data_list_inspeksi)) {
+        throw new Error(result.message || 'Gagal mengambil daftar inspeksi.');
+    }
+    return result.data_list_inspeksi;
+}
+
 export type AddInspectionParams = {
     inspeksi_title: string;
     inspeksi_pic: string;
@@ -17,6 +86,11 @@ export async function addInspection(params: AddInspectionParams) {
         ?.split('=')[1];
 
     if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+
         throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
     }
 

@@ -115,12 +115,10 @@ export default function ProfilePage() {
                     <div className="p-4 space-y-3">
                         <ProfileDetail label="Email" value={user.email} />
                         <ProfileDetail label="Telepon" value={"+62812345689"} />
-                        <ProfileDetail label="Sertifikasi" value={"NFPA 220"} />
-                        <ProfileDetail label="Berlaku hingga" value={"2029"} />
 
-                        <button className="w-full bg-purple-600 text-white py-2 rounded-lg text-sm">
+                        <Link href="/profile/edit" className="w-full block bg-purple-600 text-white py-2 rounded-lg text-sm text-center font-medium hover:bg-purple-700 transition-colors">
                             Edit Profil
-                        </button>
+                        </Link>
                     </div>
                 </div>
 
@@ -170,11 +168,6 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                         ))}
-                    </div>
-                    <div className="p-3 text-center border-t">
-                        <button className="text-blue-600 text-xs font-medium">
-                            Lihat Semua →
-                        </button>
                     </div>
                 </div>
 
