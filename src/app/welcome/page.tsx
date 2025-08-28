@@ -11,6 +11,7 @@ function WelcomeContent() {
     const redirectPath:string = searchParams.get('redirect') || '/login';
 
     const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
+    const [cameraPermissionAlreadyChecked, setCameraPermissionAlreadyChecked] = useState(false);
 
     useEffect(() => {
         // Check if the permission has already been checked
@@ -22,9 +23,12 @@ function WelcomeContent() {
     }, [redirectPath]);
 
     useEffect(() => {
-        setTimeout(() => {
-            setCameraPermissionChecked(!cameraPermissionChecked);
-        }, 900); // Delay for 900ms before checking the permission to avoid flickering on the screen when the permission is not checked yet
+        if (!cameraPermissionAlreadyChecked) {
+            setTimeout(() => {
+                setCameraPermissionChecked(!cameraPermissionChecked);
+                setCameraPermissionAlreadyChecked(true);
+            }, 900); // Delay for 900ms before checking the permission to avoid flickering on the screen when the permission is not checked yet
+        }
     });
 
     const checkCameraPermission = async () => {
