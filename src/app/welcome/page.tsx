@@ -8,7 +8,7 @@ import { Suspense, useEffect, useState } from 'react';
 function WelcomeContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const redirectPath:string = searchParams.get('redirect') || '/login';
+    const redirectPath:string = searchParams.get('redirect') || '/home';
 
     const [cameraPermissionChecked, setCameraPermissionChecked] = useState(false);
     const [cameraPermissionAlreadyChecked, setCameraPermissionAlreadyChecked] = useState(false);

@@ -7,43 +7,49 @@ import { PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import Image from "next/image"
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'; // Removed useState as it's not needed for displaying history
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { getInspectedExtinguisherList, InspectedExtinguisher } from '@/api/inspection';
+import dynamic from 'next/dynamic';
+
+const QrScanner = dynamic(() => import('@/app/components/qr_scanner'), { ssr: false });
 
 export default function InspectionExtinguisherList() {
-    // const { id } = use(params)
-    const router = useRouter()
+    const params = useParams();
+    const id = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : '';
+    const router = useRouter();
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
+    const [extinguisherList, setExtinguisherList] = useState<InspectedExtinguisher[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [showQrScanner, setShowQrScanner] = useState(false);
+    const [qrError, setQrError] = useState<string | null>(null);
 
-    // Dummy data for inspection history
-    // In a real application, you would fetch this data from your backend API
-    const extinguisherList = [
-        {
-            location: 'Pintu Depan (Gedung A)',
-            pressureGauge: 'Bagus',
-            expired: 'Tidak',
-            selang: 'Bagus',
-            headValve: 'Bagus',
-            korosi: 'Tidak',
-        },
-        {
-            location: 'Pintu Depan (Gedung A)',
-            pressureGauge: 'Bagus',
-            expired: 'Tidak',
-            selang: 'Bagus',
-            headValve: 'Rusak',
-            korosi: 'Ya',
-        },
-        {
-            location: 'Pintu Depan (Gedung A)',
-            pressureGauge: 'Rusak',
-            expired: 'Tidak',
-            selang: 'Bagus',
-            headValve: 'Bagus',
-            korosi: 'Tidak',
-        },
-        // Add more historical inspection records as needed
-    ]
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                setLoading(true);
+                setError(null);
+                const result = await getInspectedExtinguisherList(id);
+                setExtinguisherList(result.data_list_apar_inspected);
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Gagal mengambil data inspeksi');
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchData();
+    }, []);
 
+    const handleScan = (data: string | null) => {
+        if (data) {
+            // Assume QR code is valid and go to the page
+            router.push('/inspection/i/1/extid');
+            setShowQrScanner(false);
+            setQrError(null);
+        }
+    };
+    
     const optionModal = <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsFinishModalOpen(false)}>
         <div
             className="fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl p-6"
@@ -80,7 +86,7 @@ export default function InspectionExtinguisherList() {
     </div>
 
     return (
-        <MainLayout appBarTitle='Inspeksi Juni' showNavBar={false}>
+        <MainLayout appBarTitle='Inspeksi' showNavBar={false}>
             {/* Warning message */}
             <div className="hidden md:flex flex-col items-center justify-center min-h-screen bg-gray-50">
                 <div className="max-w-md p-8 bg-white rounded-2xl shadow-lg text-center space-y-4">
@@ -117,10 +123,14 @@ export default function InspectionExtinguisherList() {
 
                 {/* Extinguisher list */}
                 <div className="w-full max-w-sm rounded-xl space-y-6 mt-8">
-                    {extinguisherList.length > 0 ? (
+                    {loading ? (
+                        <div className="bg-white p-4 rounded-2xl shadow-sm text-center text-gray-400">Memuat data inspeksi...</div>
+                    ) : error ? (
+                        <div className="bg-white p-4 rounded-2xl shadow-sm text-center text-red-500">{error}</div>
+                    ) : extinguisherList.length > 0 ? (
                         extinguisherList.map((ext, index) => (
                             <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">
-                                <Link key={index} href={'/inspection/d/' + index}>
+                                <Link key={index} href={'/inspection/d/' + ext.id}>
                                     <div className="flex items-center space-x-4">
                                         <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
                                             <Image
@@ -132,52 +142,69 @@ export default function InspectionExtinguisherList() {
                                             />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="text-gray-900 font-medium text-base">{ext.location}</h3>
+                                            <h3 className="text-gray-900 font-medium text-base">{ext.lokasi}</h3>
+                                            <p className='text-gray-400 font-medium text-xs mb-1'>#{ext.kode_barang}</p>
                                             <div className="grid grid-cols-3 gap-1">
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Brand</p>
-                                                    <p className="text-sm font-medium text-gray-700">Tanexa</p>
+                                                    <p className="text-sm font-medium text-gray-700">{ext.brand}</p>
                                                 </div>
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Media</p>
-                                                    <p className="text-sm font-medium text-gray-700">Powder</p>
+                                                    <p className="text-sm font-medium text-gray-700">{ext.media}</p>
                                                 </div>
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Kapasitas</p>
-                                                    <p className="text-sm font-medium text-gray-700">6.0 kg</p>
+                                                    <p className="text-sm font-medium text-gray-700">{ext.kapasitas} kg</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                     <div className="flex items-center space-x-4">
                                         <div className="w-[50px] h-[50px] rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center"></div>
                                         <div className="flex-1 min-w-0">
                                             <div className="grid grid-cols-3 gap-1">
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Tgl. inspeksi</p>
-                                                    <p className="text-sm font-medium text-gray-700">12 Mar 2025</p>
+                                                    <p className="text-sm font-medium text-gray-700">
+                                                        {ext.last_inspection ? new Date(ext.created_at).toLocaleDateString('en-GB', {
+                                                            day: '2-digit',
+                                                            month: 'short',
+                                                            year: 'numeric'
+                                                        }) : ''}
+                                                    </p>
                                                 </div>
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Status</p>
-                                                    <p className="text-sm font-medium text-gray-700">OK</p>
+                                                    <p className="text-sm font-medium text-gray-700">
+                                                        {ext.status ? ext.status.charAt(0).toUpperCase() + ext.status.slice(1) : ''}
+                                                    </p>
                                                 </div>
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Inspeksi oleh</p>
                                                     <p className="text-sm font-medium text-gray-700">
                                                         <UserCircleIcon width={15} height={15} color='#9334e9' className="inline-block mr-2" />
-                                                        {ext.selang}
+                                                        {/* Nama QC tidak tersedia di InspectedExtinguisher */}
+                                                        - - -
                                                     </p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-
                                 </Link>
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-500">Belum ada riwayat inspeksi untuk APAR ini.</p>
+                        <div className="flex flex-col items-center justify-center bg-white p-6 rounded-2xl shadow-sm">
+                            {/* "No data" icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-20 h-20 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 17a4 4 0 004 4h8a4 4 0 004-4V7a4 4 0 00-4-4H8a4 4 0 00-4 4v10zm8-4v.01M8 13h.01M16 13h.01" />
+                            </svg>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-1">Belum Ada Data Inspeksi</h3>
+                            <p className="text-gray-500 text-center">
+                                Silakan lakukan inspeksi untuk mulai mencatat data.
+                            </p>
+                        </div>
                     )}
                 </div>
 
@@ -185,7 +212,9 @@ export default function InspectionExtinguisherList() {
                 <div className="w-full max-w-sm p-6 sm:p-6 space-y-6 mt-8">
                     <div className="flex gap-4 fixed bottom-2 left-0 right-0 mx-auto max-w-sm px-6">
                         <button
-                            onClick={() => router.push('/inspection/i/83180142903/extid')}
+                            onClick={() => {
+                                router.push(`/inspection/i/${id}/scan`);
+                            }}
                             className="bg-purple-600 w-3/4 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center"
                         >
                             <div className="flex items-center justify-center gap-2">
@@ -193,6 +222,22 @@ export default function InspectionExtinguisherList() {
                                 <span>Cek APAR</span>
                             </div>
                         </button>
+                        {showQrScanner && (
+                            <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center">
+                                <div className="bg-white rounded-xl p-4 max-w-sm w-full relative">
+                                    <QrScanner
+                                        onScanSuccess={handleScan}
+                                    />
+                                    <button
+                                        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                                        onClick={() => setShowQrScanner(false)}
+                                    >
+                                        &times;
+                                    </button>
+                                    {qrError && <div className="text-red-500 text-center mt-2">{qrError}</div>}
+                                </div>
+                            </div>
+                        )}
 
                         <button
                             onClick={() => setIsFinishModalOpen(true)}
