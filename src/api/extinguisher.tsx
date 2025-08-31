@@ -246,13 +246,14 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
         .find(row => row.startsWith('token='))
         ?.split('=')[1];
 
-    if (!token) {
-        setTimeout(() => {
-            logout();
-            window.location.reload();
-        }, 2000);
-        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
-    }
+    // disabled since this method should be publicly accessible
+    // if (!token) {
+    //     setTimeout(() => {
+    //         logout();
+    //         window.location.reload();
+    //     }, 2000);
+    //     throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    // }
 
     const formData = new FormData();
     formData.append('id_barang', id_barang);
@@ -267,13 +268,14 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
     });
 
     if (!res.ok) {
-        if (res.status === 401) {
-            setTimeout(() => {
-                logout();
-                window.location.reload();
-            }, 2000);
-            throw new Error('Sesi telah berakhir. Silakan login kembali.');
-        }
+        // disabled since this method should be publicly accessible
+        // if (res.status === 401) {
+        //     setTimeout(() => {
+        //         logout();
+        //         window.location.reload();
+        //     }, 2000);
+        //     throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        // }
         throw new Error('Gagal mengambil detail APAR.');
     }
 

@@ -22,7 +22,7 @@ export default function InspectionDetailPage() {
     const [quotationError, setQuotationError] = useState<string | null>(null);
     const [quotationDownloadLoading, setQuotationDownloadLoading] = useState(false);
     const [quotationDownloadError, setQuotationDownloadError] = useState<string | null>(null);
-    
+
     const handleDownloadQuotation = async () => {
         if (quotationDownloadLoading) return;
         setQuotationDownloadLoading(true);
@@ -107,97 +107,102 @@ export default function InspectionDetailPage() {
     const aparList = detail.list_apar;
 
     return (
-    <MainLayout appBarTitle='Inspeksi' showNavBar={false}>
-        <div className="bg-gray-50 flex flex-col items-center px-6 pt-24">
-            
-            {/* Success Icon */}
-            <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4">
-                <DocumentTextIcon width={40} height={40} className="text-purple-600"/>
-            </div>
+        <MainLayout appBarTitle='Inspeksi' showNavBar={false}>
+            <div className="bg-gray-50 flex flex-col items-center px-6 pt-24">
 
-            {/* Success Message */}
-            <h1 className="text-xl font-semibold text-gray-900 mb-1">{agenda.inspeksi_title}</h1>
-
-            {/* Inspection Details */}
-            <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
-                <div className="flex justify-between">
-                    <div>
-                        <p className="text-sm text-gray-500">Tgl Dibuat</p>
-                        <p className="text-base font-medium text-gray-900">{(() => {
-                            const date = new Date(agenda.created_at);
-                            return isNaN(date.getTime())
-                                ? agenda.created_at
-                                : `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
-                        })()}</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-500">Dibuat oleh</p>
-                        <p className="text-base font-medium text-gray-900">
-                            <UserCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600"/>
-                            {agenda.created_name}
-                        </p>
-                    </div>
+                {/* Success Icon */}
+                <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-4">
+                    <DocumentTextIcon width={40} height={40} className="text-purple-600" />
                 </div>
 
-                <div className="flex justify-between">
-                    <div>
-                        <p className="text-sm text-gray-500">Jumlah apar</p>
-                        <p className="text-base font-medium text-gray-900">{agenda.jumlah_apar ?? 0}</p>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-500">Status</p>
-                        <p className="text-base font-medium text-gray-900">{agenda.status}</p>
-                    </div>
-                </div>
-            </div>
+                {/* Success Message */}
+                <h1 className="text-xl font-semibold text-gray-900 mb-1">{agenda.inspeksi_title}</h1>
 
-            {/* Inspection Details */}
-            {
-                agenda.jumlah_apar != null ? (
-                    <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
-                        <div className="flex justify-between">
-                            <div>
-                                <p className="text-sm text-gray-500">Estimasi Penawaran</p>
-                                <p className="text-base font-medium text-gray-900">
-                                    {quotationLoading ? 'Memuat...' : quotationError ? <span className="text-red-500">{quotationError}</span> : quotation || '-'}
-                                </p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-sm text-gray-500">Penawaran</p>
-                                <p className="text-base font-medium text-gray-900">
-                                    <Link 
-                                        href="#"
-                                        onClick={handleDownloadQuotation}
-                                    >
-                                        {
-                                            quotationDownloadLoading ? (
-                                                <>
-                                                    <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600 animate-bounce" />
-                                                    Mengunduh...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600" />
-                                                    Unduh
-                                                </>
-                                            )}
-                                    </Link>
-                                    {quotationDownloadError && (
-                                        <div className="text-red-500 text-sm mt-2 text-center">{quotationDownloadError}</div>
-                                    )}
-                                </p>
-                            </div>
+                {/* Inspection Details */}
+                <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
+                    <div className="flex justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Tgl Dibuat</p>
+                            <p className="text-base font-medium text-gray-900">{(() => {
+                                const date = new Date(agenda.created_at);
+                                return isNaN(date.getTime())
+                                    ? agenda.created_at
+                                    : `${date.getDate().toString().padStart(2, '0')} ${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}`;
+                            })()}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm text-gray-500">Dibuat oleh</p>
+                            <p className="text-base font-medium text-gray-900">
+                                <UserCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600" />
+                                {agenda.created_name}
+                            </p>
                         </div>
                     </div>
-                ) : null
-            }
 
-            {/* Action Buttons */}
-            <div className="w-full max-w-sm md:max-w-full space-y-3 mt-8">
-                <Link href={`/inspection/i/${extid}`} className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
-                    <PlayCircleIcon width={20} height={20} className="inline-block mr-2"/>
-                    Lanjut Inspeksi
-                </Link>
+                    <div className="flex justify-between">
+                        <div>
+                            <p className="text-sm text-gray-500">Jumlah apar</p>
+                            <p className="text-base font-medium text-gray-900">{agenda.jumlah_apar ?? 0}</p>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-sm text-gray-500">Status</p>
+                            <p className="text-base font-medium text-gray-900">{agenda.status}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Inspection Details */}
+                {
+                    agenda.jumlah_apar != null ? (
+                        <div className="w-full max-w-sm md:max-w-full bg-white rounded-xl p-6 space-y-4 mt-8">
+                            <div className="flex justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-500">Estimasi Penawaran</p>
+                                    <p className="text-base font-medium text-gray-900">
+                                        {quotationLoading ? 'Memuat...' : quotationError ? <span className="text-red-500">{quotationError}</span> : quotation || '-'}
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm text-gray-500">Penawaran</p>
+                                    <p className="text-base font-medium text-gray-900">
+                                        <Link
+                                            href="#"
+                                            onClick={handleDownloadQuotation}
+                                        >
+                                            {
+                                                quotationDownloadLoading ? (
+                                                    <>
+                                                        <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600 animate-bounce" />
+                                                        Mengunduh...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 text-purple-600" />
+                                                        Unduh
+                                                    </>
+                                                )}
+                                        </Link>
+                                        {quotationDownloadError && (
+                                            <div className="text-red-500 text-sm mt-2 text-center">{quotationDownloadError}</div>
+                                        )}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : null
+                }
+
+                {/* Action Buttons */}
+                <div className="w-full max-w-sm md:max-w-full space-y-3 mt-8">
+                    {
+                        agenda.status.toLowerCase() != "selesai" ? (
+                            <Link href={`/inspection/i/${extid}`} className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
+                                <PlayCircleIcon width={20} height={20} className="inline-block mr-2" />
+                                Lanjut Inspeksi
+                            </Link>
+                        ) : null
+                    }
+
                     <button
                         type="button"
                         className="block w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center"
@@ -206,12 +211,12 @@ export default function InspectionDetailPage() {
                     >
                         {downloadLoading ? (
                             <span className="flex items-center justify-center">
-                                <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 animate-bounce"/>
+                                <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2 animate-bounce" />
                                 Mengunduh...
                             </span>
                         ) : (
                             <span>
-                                <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2"/>
+                                <ArrowDownCircleIcon width={20} height={20} className="inline-block mr-2" />
                                 Unduh Laporan
                             </span>
                         )}
@@ -219,9 +224,9 @@ export default function InspectionDetailPage() {
                     {downloadError && (
                         <div className="text-red-500 text-sm mt-2 text-center">{downloadError}</div>
                     )}
+                </div>
             </div>
-        </div>
-        
+
             {/* List APAR */}
             <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                 {/* Header */}
@@ -252,6 +257,7 @@ export default function InspectionDetailPage() {
 
                                         <div className="flex-1 min-w-0">
                                             <h3 className="text-gray-900 font-medium text-base">{ext.lokasi}</h3>
+                                            <p className="text-xs font-medium text-gray-400">#{ext.kode_barang}</p>
                                             <div className="grid grid-cols-2 gap-1">
                                                 <div className="text-left">
                                                     <p className="text-xs text-gray-500">Tanggal</p>
@@ -273,6 +279,6 @@ export default function InspectionDetailPage() {
                     </div>
                 </div>
             </div>
-    </MainLayout>
-  );
+        </MainLayout>
+    );
 }

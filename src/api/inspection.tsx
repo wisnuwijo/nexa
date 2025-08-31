@@ -1,3 +1,48 @@
+export type InspectionProgressResponse = {
+    message: string;
+    proggress_inspected: number;
+    proggress_uninspected: number;
+};
+
+export async function getInspectionProgress(id_jadwal: string): Promise<InspectionProgressResponse> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/inspection/proggress?id_jadwal=${id_jadwal}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil progress inspeksi.');
+    }
+
+    const result: InspectionProgressResponse = await res.json();
+    if (typeof result.proggress_inspected !== 'number' || typeof result.proggress_uninspected !== 'number') {
+        throw new Error(result.message || 'Gagal mengambil progress inspeksi.');
+    }
+    return result;
+}
 // Type for inspected extinguisher item
 export type InspectedExtinguisher = {
     id: number;

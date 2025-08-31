@@ -16,6 +16,11 @@ export function middleware(req: NextRequest) {
     return prevent_reauth_middleware(req);
   }
 
+  // extinguisher detail page
+  if (req.nextUrl.pathname.startsWith('/extinguisher/d/')) {
+    return NextResponse.next();
+  }
+
   if (isProtectedRoute) {
     return auth_middleware(req);
   }

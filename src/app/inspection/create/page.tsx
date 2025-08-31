@@ -49,7 +49,7 @@ export default function StickerCreatePage() {
             
             // Navigate to inspection details or list after successful creation
             setTimeout(() => {
-                router.push('/inspection/i/83180142903');
+                router.back();
             }, 2000);
             
         } catch (err) {

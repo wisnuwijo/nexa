@@ -1,3 +1,52 @@
+export type UpdateInspectionScheduleStatusResponse = {
+    message: string;
+    data: InspectionItem;
+};
+
+export async function updateInspectionScheduleStatus(id_jadwal: string, status: string): Promise<UpdateInspectionScheduleStatusResponse> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const formData = new FormData();
+    formData.append('id_jadwal', id_jadwal);
+    formData.append('status', status);
+
+    const res = await fetch(`${API_BASE_URL}/inspection/chage_status_inspection`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal memperbarui status jadwal inspeksi.');
+    }
+
+    const result: UpdateInspectionScheduleStatusResponse = await res.json();
+    if (!result.data || !result.data.id) {
+        throw new Error(result.message || 'Gagal memperbarui status jadwal inspeksi.');
+    }
+    return result;
+}
 import { logout } from "./auth";
 import { API_BASE_URL } from "./config";
 
