@@ -101,20 +101,51 @@ export default function ProfilePage() {
         </div>
     </div>
 
+    function formatIndoDate(created_at: string): string {
+        if (!created_at) return "";
+        const date = new Date(created_at);
+        const months = [
+            "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+            "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+        ];
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        return `${day} ${month} ${year}`;
+    }
+
     return (
         <MainLayout appBarTitle='Profil' showNavBar={true}>
             <div className="mx-auto pt-10 max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                 {/* Profile Card */}
                 <div className="bg-white rounded-lg shadow mb-4">
                     <div className="bg-purple-600 p-4 text-center">
-                        <div className="text-5xl pt-5">👨‍🚒</div>
+                        <div className="flex justify-center pt-5">
+                            <div className="relative group w-20 h-20 rounded-full overflow-hidden border-1 border-white shadow-md bg-gray-200 flex items-center justify-center">
+                                <img
+                                    src="/images/profile.jpg"
+                                    alt="Profile Picture"
+                                    className="object-cover w-full h-full"
+                                />
+                                <button
+                                    onClick={() => router.push('/profile/avatar')}
+                                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
+                                    title="Edit Foto Profil"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487a2.1 2.1 0 1 1 2.97 2.97L7.5 19.789l-4 1 1-4 14.362-14.302z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <h2 className="text-lg font-bold text-white">{user.name}</h2>
                         <p className="text-blue-100 text-sm">Administrator</p>
                     </div>
 
                     <div className="p-4 space-y-3">
                         <ProfileDetail label="Email" value={user.email} />
-                        <ProfileDetail label="Telepon" value={"+62812345689"} />
+                        <ProfileDetail label="Username" value={user.username} />
+                        <ProfileDetail label="Tanggal Bergabung" value={formatIndoDate(user.created_at)} />
 
                         <Link href="/profile/edit" className="w-full block bg-purple-600 text-white py-2 rounded-lg text-sm text-center font-medium hover:bg-purple-700 transition-colors">
                             Edit Profil
@@ -125,7 +156,7 @@ export default function ProfilePage() {
                 {/* Stats - Horizontal Scroll */}
                 <div className="flex flex-row overflow-x-auto gap-2 pb-2 no-scrollbar justify-between items-center">
                     <StatCard title="Total Inspeksi" value="12" icon="🧯" />
-                    <StatCard title="Kelulusan" value="89%" icon="✅" isGood />
+                    <StatCard title="Lulus Inspeksi" value="89%" icon="✅" isGood />
                     <StatCard title="Perlu Tindakan" value="7" icon="⚠️" isWarning />
                 </div>
 

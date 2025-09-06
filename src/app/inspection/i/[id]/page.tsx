@@ -5,7 +5,7 @@ import { getInspectionScheduleDetail, InspectionScheduleDetailResponse, updateIn
 import MainLayout from '@/app/components/main_layout'
 import ProgressBar from '@/app/components/progress_bar'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
-import { PlusIcon, UserCircleIcon } from '@heroicons/react/24/solid'
+import { PlusIcon, TrashIcon, UserCircleIcon } from '@heroicons/react/24/solid'
 import Image from "next/image"
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -19,6 +19,12 @@ export default function InspectionExtinguisherList() {
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
     const [finishLoading, setFinishLoading] = useState(false);
     const [finishError, setFinishError] = useState<string | null>(null);
+    
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [selectedExtinguisherToBeDeleted, setSelectedExtinguisherToBeDeleted] = useState<InspectedExtinguisher | null>(null);
+
     const [extinguisherList, setExtinguisherList] = useState<InspectedExtinguisher[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -66,7 +72,63 @@ export default function InspectionExtinguisherList() {
         }
     }
 
-    const optionModal = <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsFinishModalOpen(false)}>
+    async function handleDelete() {
+        setDeleteLoading(true);
+        setDeleteError(null);
+        try {
+            // await updateInspectionScheduleStatus(id, 'Selesai');
+            setIsDeleteModalOpen(false);
+
+            toast.success('Inspeksi berhasil dihapus!');
+            setTimeout(() => {
+                router.push('/inspection/d/' + id);
+            }, 2000);
+        } catch (err) {
+            toast.error('Gagal memperbarui status jadwal inspeksi');
+            setDeleteError(err instanceof Error ? err.message : 'Gagal memperbarui status jadwal inspeksi');
+        } finally {
+            setDeleteLoading(false);
+        }
+    }
+
+    const deleteConfirmModal = <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsDeleteModalOpen(false)}>
+        <div
+            className="fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl p-6"
+            onClick={e => e.stopPropagation()}
+        >
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6" />
+            <div className="space-y-4">
+                <h1 className="text-lg font-medium text-gray-900">Konfirmasi</h1>
+                <p className="text-sm text-gray-500">Apakah Anda yakin ingin menghapus APAR <strong>#{selectedExtinguisherToBeDeleted?.kode_barang}</strong> dari inspeksi?</p>
+                <div className="flex gap-2">
+                    <div className="w-1/2">
+                        <button
+                            onClick={handleDelete}
+                            className={`bg-purple-600 w-full text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center ${deleteLoading ? 'opacity-60 cursor-not-allowed' : ''}`}
+                            disabled={deleteLoading}
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <span>{deleteLoading ? 'Menyimpan...' : 'Hapus'}</span>
+                            </div>
+                        </button>
+                        {deleteError && <div className="text-red-500 text-center mt-2">{deleteError}</div>}
+                    </div>
+                    <div className="w-1/2">
+                        <button
+                            onClick={() => setIsDeleteModalOpen(false)}
+                            className="bg-gray-100 w-full text-purple-600 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors text-center"
+                        >
+                            <div className="flex items-center justify-center gap-2">
+                                <span>Batal</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    const finisihConfirmModal = <div className="fixed inset-0 bg-black bg-opacity-50 z-50" onClick={() => setIsFinishModalOpen(false)}>
         <div
             className="fixed bottom-0 left-0 right-0 w-full bg-white rounded-t-2xl p-6"
             onClick={e => e.stopPropagation()}
@@ -105,6 +167,16 @@ export default function InspectionExtinguisherList() {
 
     return (
         <MainLayout appBarTitle='Inspeksi' showNavBar={false}>
+            {/* Finish Confirm modal */}
+            <div className={isFinishModalOpen ? "block" : "hidden"}>
+                {finisihConfirmModal}
+            </div>
+
+            {/* Delete Confirm modal */}
+            <div className={isDeleteModalOpen ? "block" : "hidden"}>
+                {deleteConfirmModal}
+            </div>
+
             {
                 scheduleDetail?.detail_agenda.status.toLowerCase() === 'selesai'
                     ? <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
@@ -236,6 +308,20 @@ export default function InspectionExtinguisherList() {
                                                     </div>
                                                 </div>
                                             </Link>
+                                            
+                                            {/* Delete button */}
+                                            <div className="bg-red-50 mt-4 p-3 rounded-lg flex text-center justify-center">
+                                                <button
+                                                    onClick={() => {
+                                                        setIsDeleteModalOpen(true)
+                                                        setSelectedExtinguisherToBeDeleted(ext);
+                                                    }}
+                                                    className="text-red-500 hover:text-red-700"
+                                                >
+                                                    <TrashIcon className="w-5 h-5 inline-block mr-2" />
+                                                    Hapus
+                                                </button>
+                                            </div>
                                         </div>
                                     ))
                                 ) : (
@@ -275,12 +361,6 @@ export default function InspectionExtinguisherList() {
                                             <CheckCircleIcon className="w-6 h-6 text-white" />
                                         </div>
                                     </button>
-
-                                    {/* Option modal */}
-                                    <div className={isFinishModalOpen ? "block" : "hidden"}>
-                                        {optionModal}
-                                    </div>
-
                                 </div>
                             </div>
                         </div>

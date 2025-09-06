@@ -4,7 +4,7 @@ import { DocumentArrowDownIcon, EllipsisHorizontalIcon, QrCodeIcon } from '@hero
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { getExtinguisherList, Extinguisher } from '../../api/extinguisher';
 import MainLayout from '../components/main_layout';
 import { getLocationList, Location } from '@/api/location';
@@ -26,15 +26,42 @@ export default function ExtingisherPage() {
     const [locations, setLocations] = useState<Location[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [selectedLocation, setSelectedLocation] = useState('');
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
+    // Fetch locations on mount
     useEffect(() => {
-        async function fetchData() {
+        async function fetchLocations() {
+            const locationList = await getLocationList();
+            setLocations(locationList);
+        }
+        fetchLocations();
+    }, []);
+
+    // Debounce searchQuery -> debouncedSearchQuery
+    useEffect(() => {
+        if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        debounceTimeout.current = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 1000); // 1 seconds debounce, configurable
+        return () => {
+            if (debounceTimeout.current) clearTimeout(debounceTimeout.current);
+        };
+    }, [searchQuery]);
+
+    // Fetch extinguishers when debouncedSearchQuery or selectedLocation changes
+    useEffect(() => {
+        async function fetchExtinguishers() {
             try {
                 setLoading(true);
-                const extList = await getExtinguisherList();
-                const locationList = await getLocationList();
+                setError(null);
+                const extList = await getExtinguisherList({
+                    lokasi: selectedLocation || undefined,
+                    search: debouncedSearchQuery || undefined,
+                });
                 setExtinguishers(extList);
-                setLocations(locationList);
             } catch (err: unknown) {
                 if (err instanceof Error) {
                     setError(err.message);
@@ -45,8 +72,8 @@ export default function ExtingisherPage() {
                 setLoading(false);
             }
         }
-        fetchData();
-    }, []);
+        fetchExtinguishers();
+    }, [debouncedSearchQuery, selectedLocation]);
 
     const handleViewDetail = (id: string) => {
         router.push(`/extinguisher/d/${id}`);
@@ -71,9 +98,9 @@ export default function ExtingisherPage() {
                             <input
                                 type="text"
                                 placeholder="Cari APAR.."
-                                className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
-                            // value={searchQuery}
-                            // onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base text-gray-500"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg">🔍</span>
                         </div>
@@ -82,10 +109,8 @@ export default function ExtingisherPage() {
                         <div className={`relative mb-12 text-gray-600 ${locations.length === 0 ? 'hidden' : ''}`}>
                             <select
                                 className="w-full py-3.5 px-12 bg-white rounded-2xl shadow-sm text-base"
-                                // onChange={(e) => {
-                                    // Handle building filter change
-                                    // const selectedBuilding = e.target.value;
-                                // }}
+                                value={selectedLocation}
+                                onChange={(e) => setSelectedLocation(e.target.value)}
                             >
                                 <option value="">Semua gedung</option>
                                 {

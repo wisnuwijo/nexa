@@ -1,3 +1,99 @@
+export type BrokenPart = {
+    id: number;
+    kode_customer: string;
+    nama_detail_activity: string;
+    total_rusak: number;
+    last_user_id: number;
+    created_at: string;
+    updated_at: string;
+    persentase_rusak: number;
+};
+
+export type BrokenPartListResponse = {
+    message: string;
+    data: BrokenPart[];
+};
+
+export async function getBrokenExtinguisherParts(): Promise<BrokenPart[]> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/inspection/part_broken_list`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil data part APAR yang rusak.');
+    }
+
+    const data: BrokenPartListResponse = await res.json();
+    return data.data;
+}
+
+export type ExtinguisherCountResponse = {
+    message: string;
+    data: number;
+};
+
+export async function getExtinguisherCount(): Promise<number> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/count_apar`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil jumlah APAR.');
+    }
+
+    const data: ExtinguisherCountResponse = await res.json();
+    return data.data;
+}
 import { logout } from "./auth";
 import { API_BASE_URL } from "./config";
 
@@ -143,7 +239,7 @@ export type ExtinguisherListResponse = {
     list_apar: Extinguisher[];
 };
 
-export async function getExtinguisherList(): Promise<Extinguisher[]> {
+export async function getExtinguisherList(params?: { lokasi?: string; search?: string }): Promise<Extinguisher[]> {
     // Get token from cookies
     const token = document.cookie
         .split('; ')
@@ -158,7 +254,16 @@ export async function getExtinguisherList(): Promise<Extinguisher[]> {
         throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
     }
 
-    const res = await fetch(`${API_BASE_URL}/product/list_apar`, {
+    // Build query string if params are provided
+    let url = `${API_BASE_URL}/product/list_apar`;
+    if (params && (params.lokasi || params.search)) {
+        const query = new URLSearchParams();
+        if (params.lokasi) query.append('lokasi', params.lokasi);
+        if (params.search) query.append('search', params.search);
+        url += `?${query.toString()}`;
+    }
+
+    const res = await fetch(url, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,

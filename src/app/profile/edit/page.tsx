@@ -54,7 +54,7 @@ export default function EditProfilePage() {
 
     return (
         <MainLayout appBarTitle='Edit Profil' showNavBar={true}>
-            <div className="mx-auto pt-10 max-w-[430px] md:max-w-full px-4 pb-24">
+            <div className="mx-auto pt-20 max-w-[430px] md:max-w-full px-4 pb-24">
                 <form className="bg-white rounded-lg shadow p-6 space-y-6" onSubmit={handleSubmit}>
                     <h2 className="text-lg font-bold text-gray-900 mb-2">Edit Profil</h2>
                     <div className="space-y-4">

@@ -1,20 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getExtinguisherCount, getBrokenExtinguisherParts } from '@/api/extinguisher';
+import { showUserActivity } from '@/api/user';
 import MainLayout from '../components/main_layout';
 import { User } from '@/api/auth';
 
 export default function HomePage() {
-  const [defects] = useState([
-    { name: 'Low Pressure', percentage: 45 },
-    { name: 'Broken Seal', percentage: 20 },
-    { name: 'Obstructed', percentage: 10 },
-  ]);
+  const [extinguisherCount, setExtinguisherCount] = useState<number | null>(null);
+  const [extinguisherCountLoading, setExtinguisherCountLoading] = useState(true);
+  const [defects, setDefects] = useState<{ name: string; percentage: number }[]>([]);
 
-  const [recentActivity] = useState([
-    { inspector: 'Mark', action: 'passed', id: 33, time: '2h ago' },
-    { inspector: 'Ana', action: 'failed', id: 12, reason: 'Low pressure', time: '4h ago' },
-  ]);
+  // Map for translation and icon
+  const defectNameMap: Record<string, { label: string; icon: string }> = {
+    expired: { label: 'Kedaluwarsa', icon: '⏰' },
+    korosi: { label: 'Korosi', icon: '🦠' },
+    pressure: { label: 'Tekanan', icon: '💨' },
+    selang: { label: 'Selang', icon: '🧵' },
+    head_valve: { label: 'Head Valve', icon: '🔩' },
+  };
+  const [defectsLoading, setDefectsLoading] = useState(true);
+
+  const [userActivity, setUserActivity] = useState<import('@/api/user').UserActivity[]>([]);
+  const [userActivityLoading, setUserActivityLoading] = useState(true);
+  const [showAllActivity, setShowAllActivity] = useState(false);
 
   const [user, setUser] = useState<User | null>(null);
 
@@ -27,18 +36,36 @@ export default function HomePage() {
   })();
 
   useEffect(() => {
+    // Fetch user activity
+    setUserActivityLoading(true);
+    showUserActivity()
+      .then(data => setUserActivity(data))
+      .catch(() => setUserActivity([]))
+      .finally(() => setUserActivityLoading(false));
     // Check if user is logged in
     const usr = localStorage.getItem('user');
-    console.log("User from localStorage:", user);
     if (!usr) {
-      // Redirect to login if not logged in
       window.location.href = '/login?redirect=/home';
+      return;
     } else if (user == null) {
-      // Parse user data and set it in localStorage
       const parsedUser = JSON.parse(usr) as User;
       setUser(parsedUser);
     }
-  });
+
+    // Fetch extinguisher count
+    setExtinguisherCountLoading(true);
+    getExtinguisherCount()
+      .then(count => setExtinguisherCount(count))
+      .catch(() => setExtinguisherCount(null))
+      .finally(() => setExtinguisherCountLoading(false));
+
+    // Fetch broken extinguisher parts
+    setDefectsLoading(true);
+    getBrokenExtinguisherParts()
+      .then(parts => setDefects(parts.map(part => ({ name: part.nama_detail_activity, percentage: part.persentase_rusak }))))
+      .catch(() => setDefects([]))
+      .finally(() => setDefectsLoading(false));
+  }, [user]);
 
   return (
     <MainLayout appBarTitle='' showNavBar={true}>
@@ -54,7 +81,7 @@ export default function HomePage() {
 
           <MetricCard
             title="Jumlah APAR"
-            value={10}
+            value={extinguisherCountLoading ? '...' : (extinguisherCount ?? '-')}
             icon="🧯"
           />
 
@@ -68,20 +95,29 @@ export default function HomePage() {
           <div className="bg-white mb-4 p-6 rounded-lg shadow">
             <h2 className="text-xl text-gray-500 font-semibold mb-4">📊 Analisis Kerusakan</h2>
             <div className="space-y-3 text-gray-500">
-              {defects.map((defect, index) => (
-                <div key={index}>
-                  <div className="flex justify-between mb-1">
-                    <span>{defect.name}</span>
-                    <span>{defect.percentage}%</span>
+              {defectsLoading ? (
+                <div>Memuat data kerusakan...</div>
+              ) : defects.length === 0 ? (
+                <div>Tidak ada data kerusakan part APAR.</div>
+              ) : (
+                defects.map((defect, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between mb-1 mt-5">
+                      <span>
+                        {defectNameMap[defect.name]?.icon || '❓'}{' '}
+                        {defectNameMap[defect.name]?.label || defect.name}
+                      </span>
+                      <span>{defect.percentage.toFixed(1)}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div
+                        className="bg-red-500 h-2.5 rounded-full"
+                        style={{ width: `${defect.percentage}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div
-                      className="bg-red-500 h-2.5 rounded-full"
-                      style={{ width: `${defect.percentage}%` }}
-                    ></div>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
@@ -89,15 +125,29 @@ export default function HomePage() {
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-4 text-gray-500">📝 Riwayat Aktivitas Terbaru</h2>
             <div className="space-y-3">
-              {recentActivity.map((activity, index) => (
-                <div key={index} className="border-b pb-2 last:border-0">
-                  <div className="text-sm text-gray-500">
-                    <span className="font-medium">Inspector {activity.inspector}</span> {activity.action} #{activity.id}{' '}
-                    {activity.action === 'failed' && `- "${activity.reason}"`} <span className="text-gray-500">({activity.time})</span>
+              {userActivityLoading ? (
+                <div>Memuat aktivitas...</div>
+              ) : userActivity.length === 0 ? (
+                <div>Tidak ada aktivitas ditemukan.</div>
+              ) : (
+                (showAllActivity ? userActivity : userActivity.slice(0, 5)).map((activity) => (
+                  <div key={activity.id} className="border-b pb-2 last:border-0">
+                    <div className="text-sm text-gray-500">
+                      <span className="font-medium">{activity.aktivitas_name}</span>
+                      <span className="ml-2">({new Date(activity.tanggal).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })})</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
+            {userActivity.length > 5 && (
+              <button
+                className="mt-4 w-full text-purple-600 hover:underline text-sm font-medium"
+                onClick={() => setShowAllActivity(v => !v)}
+              >
+                {showAllActivity ? 'Tampilkan lebih sedikit' : 'Tampilkan semua'}
+              </button>
+            )}
           </div>
 
         </div>

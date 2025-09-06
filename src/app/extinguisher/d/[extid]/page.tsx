@@ -8,7 +8,39 @@ import { getExtinguisherDetail, ExtinguisherDetail } from '../../../../api/extin
 import { use } from 'react';
 
 // temporary as response provide no example
-type ExtinguisherHistoryItem = Record<string, unknown>;
+type ExtinguisherHistoryItem = {
+    id_inspection: number;
+    no_jadwal: string;
+    kode_barang: string;
+    kode_customer: string;
+    nama_customer: string;
+    tanggal_cek: string;
+    lokasi: string | null;
+    barcode: string;
+    type: string;
+    brand: string;
+    media: string;
+    kapasitas: string;
+    pressure: string;
+    pressure_img: string | null;
+    hose: string;
+    hose_img: string | null;
+    head_valve: string;
+    head_valve_img: string | null;
+    expired: string;
+    expired_img: string | null;
+    korosi: string;
+    korosi_img: string | null;
+    status: string;
+    qc: string;
+    created_at: string;
+    updated_at: string;
+    detail_pressure: string;
+    detail_hose: string;
+    detail_head_valve: string;
+    detail_korosi: string;
+    detail_expired: string;
+};
 
 export default function ExtinguisherDetailPage({ params }: { params: Promise<{ extid: string }> }) {
     const { extid } = use(params);
@@ -105,7 +137,7 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm text-gray-500">Terakhir Inspeksi</p>
-                                    <p className="text-base font-medium text-gray-900">{extinguisher.last_inspection || '- - -'}</p>
+                                    <p className="text-base font-medium text-gray-900">{formatIndoDate(extinguisher.last_inspection || '')}</p>
                                 </div>
                             </div>
                         </div>
@@ -128,14 +160,14 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                                     <div key={index} className="border-t border-gray-200 pt-4 first:border-t-0 first:pt-0">
                                         {/* Adjust log fields as needed based on API response */}
                                         <p className="text-sm font-medium text-gray-700 mb-2">
-                                            Tanggal: <span className="font-semibold text-gray-900">10 Juni 2025</span>
+                                            Tanggal: <span className="font-semibold text-gray-900">{formatIndoDate(log.created_at)}</span>
                                         </p>
                                         <ul className="text-sm text-gray-600 space-y-1">
-                                            <li><span className="font-medium">Pressure Gauge:</span> Bagus</li>
-                                            <li><span className="font-medium">Kadaluarsa:</span> Tidak</li>
-                                            <li><span className="font-medium">Selang:</span> Bagus</li>
-                                            <li><span className="font-medium">Head Valve:</span> Bagus</li>
-                                            <li><span className="font-medium">Korosi:</span> Tidak</li>
+                                            <li><span className="font-medium">Pressure Gauge:</span> {log.detail_pressure}</li>
+                                            <li><span className="font-medium">Kadaluarsa:</span> {log.detail_expired}</li>
+                                            <li><span className="font-medium">Selang:</span> {log.detail_hose}</li>
+                                            <li><span className="font-medium">Head Valve:</span> {log.detail_head_valve}</li>
+                                            <li><span className="font-medium">Korosi:</span> {log.detail_korosi}</li>
                                         </ul>
                                     </div>
                                 ))
