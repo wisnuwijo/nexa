@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { UsersIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link';
 import { User } from '@/api/auth';
+import { EnvelopeIcon } from '@heroicons/react/24/solid';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -170,6 +171,19 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="text-left text-md">
                                     Kelola Pengguna
+                                </div>
+                            </div>
+                        </Link>
+                    </div>
+                    <hr />
+                    <div className="p-3 text-center">
+                        <Link href={"/profile/letterhead"} className="text-gray-600 text-xs font-medium">
+                            <div className="flex w-full items-center">
+                                <div className="text-left mr-5">
+                                    <EnvelopeIcon className="h-6 w-6 text-gray-500" />
+                                </div>
+                                <div className="text-left text-md">
+                                    Ubah Kop PDF
                                 </div>
                             </div>
                         </Link>
