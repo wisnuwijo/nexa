@@ -360,16 +360,12 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
     //     throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
     // }
 
-    const formData = new FormData();
-    formData.append('id_barang', id_barang);
-
-    const res = await fetch(`${API_BASE_URL}/product/detai_apar`, {
-        method: 'POST',
+    const res = await fetch(`${API_BASE_URL}/product/detail_apar?id_barang=${id_barang}`, {
+        method: 'GET',
         headers: {
             'Authorization': `Bearer ${token}`,
             'Accept': 'application/json',
-        },
-        body: formData,
+        }
     });
 
     if (!res.ok) {

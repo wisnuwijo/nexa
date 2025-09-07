@@ -73,6 +73,7 @@ export type InspectedExtinguisher = {
     deleted_at: string | null;
     created_at: string;
     updated_at: string;
+    inpection_name: string
     titik_penempatan_id: string | null;
 };
 

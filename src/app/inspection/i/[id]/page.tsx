@@ -300,8 +300,7 @@ export default function InspectionExtinguisherList() {
                                                                 <p className="text-xs text-gray-500">Inspeksi oleh</p>
                                                                 <p className="text-sm font-medium text-gray-700">
                                                                     <UserCircleIcon width={15} height={15} color='#9334e9' className="inline-block mr-2" />
-                                                                    {/* Nama QC tidak tersedia di InspectedExtinguisher */}
-                                                                    - - -
+                                                                    {ext.inpection_name}
                                                                 </p>
                                                             </div>
                                                         </div>
