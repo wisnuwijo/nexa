@@ -1,3 +1,41 @@
+// Delete inspection
+export type DeleteInspectionResponse = {
+    status: string;
+    message: string;
+};
+
+export async function deleteInspection(id_inspection: string): Promise<DeleteInspectionResponse> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const formData = new FormData();
+    formData.append('id_inspection', id_inspection);
+
+    const res = await fetch(`${API_BASE_URL}/inspection/delete_inspection`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal menghapus data inspeksi.');
+    }
+
+    return res.json();
+}
 export type InspectionProgressResponse = {
     message: string;
     proggress_inspected: number;
@@ -46,6 +84,7 @@ export async function getInspectionProgress(id_jadwal: string): Promise<Inspecti
 // Type for inspected extinguisher item
 export type InspectedExtinguisher = {
     id: number;
+    id_inspection: number;
     barcode: string;
     kode_barang: string;
     deskripsi: string;

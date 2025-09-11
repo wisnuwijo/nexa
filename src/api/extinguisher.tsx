@@ -217,6 +217,8 @@ export type Extinguisher = {
     garansi: string | null;
     berat: string | null;
     lokasi: string | null;
+    building_name: string | null;
+    placement_point_name: string | null;
     status: string | null;
     kode_customer: string;
     pressure: string | null;

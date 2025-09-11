@@ -112,7 +112,7 @@ export default function HomePage() {
                     <div className="w-full bg-gray-200 rounded-full h-2.5">
                       <div
                         className="bg-red-500 h-2.5 rounded-full"
-                        style={{ width: `${defect.percentage}%` }}
+                        style={{ width: `${defect.percentage <= 100 ? defect.percentage : 100}%` }}
                       ></div>
                     </div>
                   </div>

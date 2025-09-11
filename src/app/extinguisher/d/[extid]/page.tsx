@@ -103,7 +103,7 @@ export default function ExtinguisherDetailPage({ params }: { params: Promise<{ e
                         </div>
 
                         {/* Extinguisher Info */}
-                        <h1 className="text-xl font-semibold text-gray-900 mb-1">{extinguisher.lokasi || '- - -'}</h1>
+                        <h1 className="text-xl font-semibold text-gray-900 mb-1">{extinguisher.building_name || '- - -'} / {extinguisher.placement_point_name || '- - -'}</h1>
                         <h3 className="text-xl font-semibold text-gray-400 mb-1">{extinguisher.kode_barang}</h3>
 
                         {/* Extinguisher Details */}

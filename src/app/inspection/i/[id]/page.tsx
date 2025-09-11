@@ -1,6 +1,6 @@
 'use client'
 
-import { getInspectedExtinguisherList, getInspectionProgress, InspectedExtinguisher, InspectionProgressResponse } from '@/api/inspection'
+import { getInspectedExtinguisherList, getInspectionProgress, InspectedExtinguisher, InspectionProgressResponse, deleteInspection } from '@/api/inspection'
 import { getInspectionScheduleDetail, InspectionScheduleDetailResponse, updateInspectionScheduleStatus } from '@/api/schedule'
 import MainLayout from '@/app/components/main_layout'
 import ProgressBar from '@/app/components/progress_bar'
@@ -31,25 +31,26 @@ export default function InspectionExtinguisherList() {
     const [progress, setProgress] = useState<InspectionProgressResponse | null>(null);
     const [scheduleDetail, setScheduleDetail] = useState<InspectionScheduleDetailResponse | null>(null);
 
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                setLoading(true);
-                setError(null);
-                const [extResult, progressResult, scheduleResult] = await Promise.all([
-                    getInspectedExtinguisherList(id),
-                    getInspectionProgress(id),
-                    getInspectionScheduleDetail(id)
-                ]);
-                setExtinguisherList(extResult.data_list_apar_inspected);
-                setProgress(progressResult);
-                setScheduleDetail(scheduleResult);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'Gagal mengambil data inspeksi');
-            } finally {
-                setLoading(false);
-            }
+    async function fetchData() {
+        try {
+            setLoading(true);
+            setError(null);
+            const [extResult, progressResult, scheduleResult] = await Promise.all([
+                getInspectedExtinguisherList(id),
+                getInspectionProgress(id),
+                getInspectionScheduleDetail(id)
+            ]);
+            setExtinguisherList(extResult.data_list_apar_inspected);
+            setProgress(progressResult);
+            setScheduleDetail(scheduleResult);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Gagal mengambil data inspeksi');
+        } finally {
+            setLoading(false);
         }
+    }
+
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -76,16 +77,19 @@ export default function InspectionExtinguisherList() {
         setDeleteLoading(true);
         setDeleteError(null);
         try {
-            // await updateInspectionScheduleStatus(id, 'Selesai');
+            if (!selectedExtinguisherToBeDeleted?.id_inspection) {
+                throw new Error('ID inspeksi tidak ditemukan.');
+            }
+            await deleteInspection(String(selectedExtinguisherToBeDeleted.id_inspection));
             setIsDeleteModalOpen(false);
-
             toast.success('Inspeksi berhasil dihapus!');
+            fetchData();
             setTimeout(() => {
-                router.push('/inspection/d/' + id);
+                router.push('/inspection/i/' + id);
             }, 2000);
         } catch (err) {
-            toast.error('Gagal memperbarui status jadwal inspeksi');
-            setDeleteError(err instanceof Error ? err.message : 'Gagal memperbarui status jadwal inspeksi');
+            toast.error('Gagal menghapus inspeksi');
+            setDeleteError(err instanceof Error ? err.message : 'Gagal menghapus inspeksi');
         } finally {
             setDeleteLoading(false);
         }
@@ -246,7 +250,7 @@ export default function InspectionExtinguisherList() {
                                 ) : extinguisherList.length > 0 ? (
                                     extinguisherList.map((ext, index) => (
                                         <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">
-                                            <Link key={index} href={'/inspection/i/' + id + '/' + btoa(String(ext.barcode)) + '?id=' + ext.id}>
+                                            <Link key={index} href={'/inspection/i/' + id + '/' + btoa(String(ext.barcode)) + '?id=' + ext.id + '&id_inspection=' + ext.id_inspection}>
                                                 <div className="flex items-center space-x-4">
                                                     <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
                                                         <Image

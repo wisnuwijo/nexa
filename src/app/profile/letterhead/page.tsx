@@ -20,7 +20,7 @@ function setStoredLetterhead(dataUrl: string) {
 export default function LetterheadPage() {
     const router = useRouter();
     const [letterhead, setLetterhead] = useState<string | null>(null);
-    const [file, setFile] = useState<File | null>(null);
+    // const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +35,7 @@ export default function LetterheadPage() {
                 setError('File harus berupa gambar.');
                 return;
             }
-            setFile(file);
+            // setFile(file);
             const reader = new FileReader();
             reader.onload = (ev) => {
                 setLetterhead(ev.target?.result as string);

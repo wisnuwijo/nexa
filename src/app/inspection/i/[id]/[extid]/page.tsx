@@ -1,12 +1,12 @@
 'use client'
 
 import { ExtinguisherDetail, getExtinguisherDetail } from '@/api/extinguisher'
-import { doInspection } from '@/api/inspection'
+import { doInspection, DoInspectionParams, getInspectionDetail } from '@/api/inspection'
 import MainLayout from '@/app/components/main_layout'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { CameraIcon } from '@heroicons/react/24/outline'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { use, useEffect, useState } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -28,6 +28,9 @@ const checklistData: ChecklistItem[] = [
 ]
 
 export default function InspectionChecklist({ params }: { params: Promise<{ id: string, extid: string }> }) {
+    const searchParams = useSearchParams();
+    const id_inspection = searchParams.get("id_inspection");
+    
     const router = useRouter()
     const { id, extid } = use(params)
     const [lastSegment, setLastSegment] = useState("")
@@ -36,6 +39,7 @@ export default function InspectionChecklist({ params }: { params: Promise<{ id: 
     const [extinguisher, setExtinguisher] = useState<ExtinguisherDetail | null>(null);
     const [extinguisherLoading, setExtinguisherLoading] = useState(false);
     const [extinguisherError, setExtinguisherError] = useState<string | null>(null);
+
     const [photos, setPhotos] = useState<(string | null)[]>(Array(checklistData.length).fill(null));
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState<string | null>(null);
@@ -72,6 +76,67 @@ export default function InspectionChecklist({ params }: { params: Promise<{ id: 
                 .then(res => setExtinguisher(res.data))
                 .catch(err => setExtinguisherError(err instanceof Error ? err.message : 'Gagal mengambil data APAR'))
                 .finally(() => setExtinguisherLoading(false));
+
+            if (id_inspection != "" && id_inspection != null) {
+                getInspectionDetail(id_inspection)
+                    .then(res => {
+                        const inspectionPhotos = []
+                        if (res.list_apar.length > 0) {
+                            inspectionPhotos.push(res.list_apar[0].pressure_img);
+                            inspectionPhotos.push(res.list_apar[0].expired_img);
+                            inspectionPhotos.push(res.list_apar[0].hose_img);
+                            inspectionPhotos.push(res.list_apar[0].head_valve_img);
+                            inspectionPhotos.push(res.list_apar[0].korosi_img);
+
+                            setChecklist(checklistData.map(item => {
+                                if (item.name == "Pressure Gauge" ) {
+                                    return {
+                                        ...item, 
+                                        value: res.list_apar[0].detail_pressure, 
+                                        valueID: item.optionsID[ item.options.indexOf(res.list_apar[0].detail_pressure) ] || '' 
+                                    };
+                                } else if (item.name == "Expired" ) {
+                                    return {
+                                        ...item,
+                                        value: res.list_apar[0].detail_expired,
+                                        valueID: item.optionsID[item.options.indexOf(res.list_apar[0].detail_expired)] || ''
+                                    };
+                                } else if (item.name == "Selang" ) {
+                                    return {
+                                        ...item,
+                                        value: res.list_apar[0].detail_hose,
+                                        valueID: item.optionsID[item.options.indexOf(res.list_apar[0].detail_hose)] || ''
+                                    };
+                                } else if (item.name == "Head Valve" ) {
+                                    return {
+                                        ...item,
+                                        value: res.list_apar[0].detail_head_valve,
+                                        valueID: item.optionsID[item.options.indexOf(res.list_apar[0].detail_head_valve)] || ''
+                                    };
+                                } else if (item.name == "Korosi" ) {
+                                    return {
+                                        ...item,
+                                        value: res.list_apar[0].detail_korosi,
+                                        valueID: item.optionsID[item.options.indexOf(res.list_apar[0].detail_korosi)] || ''
+                                    };
+                                }
+                                return item;
+                            }))
+                        }
+                        setPhotos(inspectionPhotos)
+                    })
+                    .catch(err => {
+                        toast.error(err instanceof Error ? err.message : 'Gagal mengambil data inspeksi', {
+                            position: 'top-center',
+                            autoClose: 4000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                        });
+                    })
+                    .finally(() => {});
+            }
         }
     }, [lastSegment])
 
@@ -169,14 +234,22 @@ export default function InspectionChecklist({ params }: { params: Promise<{ id: 
         setSaveError(null);
         try {
             // Prepare images as File objects if available
-            const photoFiles = photos.map((dataUrl, idx) => {
+            const photoFiles = await Promise.all(photos.map((dataUrl, idx) => {
                 if (!dataUrl) return null;
-                const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)?.[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
-                for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-                return new File([u8arr], `checklist_${idx + 1}.jpg`, { type: mime || 'image/jpeg' });
-            });
+                if (dataUrl.startsWith('data:')) {
+                    // Handle base64 data URL
+                    const arr = dataUrl.split(','), mime = arr[0].match(/:(.*?);/)?.[1], bstr = atob(arr[1]), n = bstr.length, u8arr = new Uint8Array(n);
+                    for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
+                    return new File([u8arr], `checklist_${idx + 1}.jpg`, { type: mime || 'image/jpeg' });
+                } else {
+                    // Handle normal URL (fetch and convert to File)
+                    return fetch(dataUrl)
+                        .then(res => res.blob())
+                        .then(blob => new File([blob], `checklist_${idx + 1}.jpg`, { type: blob.type || 'image/jpeg' }));
+                }
+            }));
 
-            const paramsToSend = {
+            let paramsToSend: DoInspectionParams = {
                 id_jadwal: id || '',
                 kode_barang: lastSegment || '',
                 pressure: checklist[0].valueID,
@@ -190,6 +263,13 @@ export default function InspectionChecklist({ params }: { params: Promise<{ id: 
                 head_valve_img: photoFiles[3],
                 korosi_img: photoFiles[4],
             };
+
+            if (id_inspection != "" && id_inspection != null) {
+                paramsToSend = {
+                    id_inspection: id_inspection,
+                    ...paramsToSend,
+                }
+            }
             const result = await doInspection(paramsToSend);
             toast.success(result.message || 'Berhasil menyimpan inspeksi', {
                 position: 'top-center',
@@ -314,7 +394,7 @@ export default function InspectionChecklist({ params }: { params: Promise<{ id: 
                                             <p className="font-medium text-gray-900">{item.name}</p>
                                         </div>
                                         <div className="w-1/2 flex items-center">
-                                            {item.value.toLowerCase() == "rusak" || item.value.toLowerCase() == "ya" ? (
+                                            {item.value != null && (item.value.toLowerCase() == "rusak" || item.value.toLowerCase() == "ya") ? (
                                                 <div className="flex items-center w-full">
                                                     <div className="w-2/3">{checklistDropdown(item)}</div>
                                                     <div className="w-1/3 flex items-center">
