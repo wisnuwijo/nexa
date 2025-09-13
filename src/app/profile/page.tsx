@@ -1,19 +1,50 @@
 "use client";
 
-import { useState } from 'react';
-import MainLayout from '../components/main_layout';
-import { useRouter } from 'next/navigation';
-import { UsersIcon } from '@heroicons/react/24/outline'
-import Link from 'next/link';
-import { User } from '@/api/auth';
-import { EnvelopeIcon } from '@heroicons/react/24/solid';
+import { User } from "@/api/auth";
+import { getBrokenExtinguisherCount, getBrokenExtinguisherList, BrokenExtinguisher } from "@/api/extinguisher";
+import { useEffect, useState } from "react";
+import MainLayout from "../components/main_layout";
+import Link from "next/link";
+import { EnvelopeIcon, UsersIcon } from "@heroicons/react/16/solid";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
     const router = useRouter();
     const [showAboutModal, setShowAboutModal] = useState(false);
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
+    const [brokenCount, setBrokenCount] = useState<number | null>(null);
+    const [brokenCountError, setBrokenCountError] = useState<string | null>(null);
 
-    // Mock user data
+    // Modal for broken extinguishers
+    const [showBrokenModal, setShowBrokenModal] = useState(false);
+    const [brokenList, setBrokenList] = useState<BrokenExtinguisher[] | null>(null);
+    const [brokenListLoading, setBrokenListLoading] = useState(false);
+    const [brokenListError, setBrokenListError] = useState<string | null>(null);
+
+    useEffect(() => {
+        let mounted = true;
+        getBrokenExtinguisherCount()
+            .then(count => { if (mounted) setBrokenCount(count); })
+            .catch(err => { if (mounted) setBrokenCountError('Gagal memuat data, error: ' + err.message); });
+        return () => { mounted = false; };
+    }, []);
+
+    const handleShowBrokenModal = () => {
+        setShowBrokenModal(true);
+        setBrokenList(null);
+        setBrokenListError(null);
+        setBrokenListLoading(true);
+        getBrokenExtinguisherList()
+            .then(list => {
+                setBrokenList(list);
+                setBrokenListLoading(false);
+            })
+            .catch(err => {
+                setBrokenListError(err instanceof Error ? err.message : 'Gagal memuat data');
+                setBrokenListLoading(false);
+            });
+    };
+
     const [user] = useState(() => {
         if (typeof window !== "undefined") {
             const storedUser = localStorage.getItem("user");
@@ -25,7 +56,7 @@ export default function ProfilePage() {
                 }
             }
         }
-        
+
         // Default user data if no user is stored
         return {
             id: 0,
@@ -156,9 +187,46 @@ export default function ProfilePage() {
 
                 {/* Stats - Horizontal Scroll */}
                 <div className="flex flex-row overflow-x-auto gap-2 pb-2 no-scrollbar justify-between items-center">
+                    <StatCard
+                        title="Perlu Tindakan"
+                        value={brokenCountError ? '-' : brokenCount === null ? '...' : brokenCount}
+                        icon="⚠️"
+                        isWarning
+                        onClick={handleShowBrokenModal}
+                        clickable
+                    />
                     <StatCard title="Total Inspeksi" value="12" icon="🧯" />
                     <StatCard title="Lulus Inspeksi" value="89%" icon="✅" isGood />
-                    <StatCard title="Perlu Tindakan" value="7" icon="⚠️" isWarning />
+                {/* Broken Extinguisher Modal */}
+                {showBrokenModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={() => setShowBrokenModal(false)}>
+                        <div className="bg-white rounded-lg p-4 mx-4 w-full max-w-md relative" onClick={e => e.stopPropagation()}>
+                            <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowBrokenModal(false)}>&times;</button>
+                            <h2 className="text-lg font-bold mb-2 text-gray-800">Daftar APAR Perlu Tindakan</h2>
+                            {brokenListLoading && <div className="text-gray-500 py-4">Memuat data...</div>}
+                            {brokenListError && <div className="text-red-500 py-4">{brokenListError}</div>}
+                            {brokenList && brokenList.length === 0 && <div className="text-gray-500 py-4">Tidak ada APAR rusak.</div>}
+                            {brokenList && brokenList.length > 0 && (
+                                <ul className="divide-y max-h-100 overflow-y-auto">
+                                    {brokenList.map((item, idx) => (
+                                        <li key={item.id} className="py-3">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <div className="font-semibold text-gray-800">{idx + 1}. {item.kode_barang} - {item.brand} {item.type}</div>
+                                                    <div className="text-xs text-gray-500">Media: {item.media}</div>
+                                                    <div className="text-xs text-gray-500">Kapasitas: {item.kapasitas}kg</div>
+                                                </div>
+                                                <div className="text-right">
+                                                    <div className="text-xs text-gray-500">Status: {item.status}</div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+                )}
                 </div>
 
                 {/* User management */}
@@ -263,43 +331,51 @@ export default function ProfilePage() {
             </div>
         </MainLayout>
     );
-}
 
-// Components
-function ProfileDetail({ label, value }: { label: string; value: string }) {
-    return (
-        <div>
-            <p className="text-xs text-gray-600">{label}</p>
-            <p className="text-sm text-gray-400 font-medium">{value}</p>
-        </div>
-    );
-}
 
-function StatCard({
-    title,
-    value,
-    icon,
-    isGood = false,
-    isWarning = false
-}: {
-    title: string;
-    value: string | number;
-    icon: string;
-    isGood?: boolean;
-    isWarning?: boolean;
-}) {
-    return (
-        <div className="basis-1/3 bg-white p-3 rounded-lg shadow-sm border">
-            <p className="text-xs text-gray-500">{title}</p>
-            <div className="flex justify-between items-center mt-1">
-                <p className={`text-lg font-bold ${isGood ? 'text-green-600' :
-                    isWarning ? 'text-yellow-600' :
-                        'text-gray-800'
-                    }`}>
-                    {value}
-                </p>
-                <span className="text-lg">{icon}</span>
+    // Components
+    function ProfileDetail({ label, value }: { label: string; value: string }) {
+        return (
+            <div>
+                <p className="text-xs text-gray-600">{label}</p>
+                <p className="text-sm text-gray-400 font-medium">{value}</p>
             </div>
-        </div>
-    );
+        );
+    }
+
+    function StatCard({
+        title,
+        value,
+        icon,
+        isGood = false,
+        isWarning = false,
+        onClick,
+        clickable = false
+    }: {
+        title: string;
+        value: string | number;
+        icon: string;
+        isGood?: boolean;
+        isWarning?: boolean;
+        onClick?: () => void;
+        clickable?: boolean;
+    }) {
+        return (
+            <div
+                className={`basis-1/3 bg-white p-3 rounded-lg shadow-sm border ${clickable ? 'cursor-pointer hover:bg-gray-100 active:scale-[0.98] transition' : ''}`}
+                onClick={clickable ? onClick : undefined}
+            >
+                <p className="text-xs text-gray-500">{title}</p>
+                <div className="flex justify-between items-center mt-1">
+                    <p className={`text-lg font-bold ${isGood ? 'text-green-600' :
+                        isWarning ? 'text-yellow-600' :
+                            'text-gray-800'
+                        }`}>
+                        {value}
+                    </p>
+                    <span className="text-lg">{icon}</span>
+                </div>
+            </div>
+        );
+    }
 }

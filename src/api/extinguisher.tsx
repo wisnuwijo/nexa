@@ -1,3 +1,129 @@
+import { logout } from "./auth";
+import { API_BASE_URL } from "./config";
+
+// Get list of broken extinguishers
+export type BrokenExtinguisher = {
+    id: number;
+    barcode: string;
+    kode_barang: string;
+    deskripsi: string | null;
+    brand: string;
+    type: string;
+    media: string;
+    kapasitas: string;
+    tgl_produksi: string;
+    tgl_beli: string | null;
+    tgl_kadaluarsa: string;
+    garansi: string | null;
+    berat: string | null;
+    lokasi: string | null;
+    status: string;
+    kode_customer: string;
+    pressure: string;
+    hose: string;
+    head_valve: string;
+    korosi: string;
+    expired: string;
+    last_service: string | null;
+    last_refill: string | null;
+    kode_mitra: string | null;
+    deleted_at: string | null;
+    created_at: string;
+    updated_at: string;
+    titik_penempatan_id: string | number | null;
+};
+
+export type BrokenExtinguisherListResponse = {
+    message: string;
+    data: {
+        apar_broken: BrokenExtinguisher[];
+    };
+};
+
+export async function getBrokenExtinguisherList(): Promise<BrokenExtinguisher[]> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/list_apar_broken`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil daftar APAR rusak.');
+    }
+
+    const data: BrokenExtinguisherListResponse = await res.json();
+    return data.data.apar_broken;
+}
+
+// Get count of broken extinguishers
+export type BrokenExtinguisherCountResponse = {
+    message: string;
+    data: {
+        apar_broken: number;
+    };
+};
+
+export async function getBrokenExtinguisherCount(): Promise<number> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/count_apar_broken`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil jumlah APAR rusak.');
+    }
+
+    const data: BrokenExtinguisherCountResponse = await res.json();
+    return data.data.apar_broken;
+}
+
 export type BrokenPart = {
     id: number;
     kode_customer: string;
@@ -94,8 +220,6 @@ export async function getExtinguisherCount(): Promise<number> {
     const data: ExtinguisherCountResponse = await res.json();
     return data.data;
 }
-import { logout } from "./auth";
-import { API_BASE_URL } from "./config";
 
 export type AddProductParams = {
     deskripsi: string;
@@ -353,15 +477,6 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
         .find(row => row.startsWith('token='))
         ?.split('=')[1];
 
-    // disabled since this method should be publicly accessible
-    // if (!token) {
-    //     setTimeout(() => {
-    //         logout();
-    //         window.location.reload();
-    //     }, 2000);
-    //     throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
-    // }
-
     const res = await fetch(`${API_BASE_URL}/product/detail_apar?id_barang=${id_barang}`, {
         method: 'GET',
         headers: {
@@ -371,14 +486,6 @@ export async function getExtinguisherDetail(id_barang: string): Promise<Extingui
     });
 
     if (!res.ok) {
-        // disabled since this method should be publicly accessible
-        // if (res.status === 401) {
-        //     setTimeout(() => {
-        //         logout();
-        //         window.location.reload();
-        //     }, 2000);
-        //     throw new Error('Sesi telah berakhir. Silakan login kembali.');
-        // }
         throw new Error('Gagal mengambil detail APAR.');
     }
 

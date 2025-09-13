@@ -292,7 +292,7 @@ export default function Register() {
             />
             <label htmlFor="terms" className="text-sm text-gray-600">
               Menyetujui {' '}
-              <Link href="/terms" className="text-purple-600 hover:text-purple-700 font-medium">
+              <Link href="/terms" target='_blank' className="text-purple-600 hover:text-purple-700 font-medium">
                 Syarat & Ketentuan
               </Link>
             </label>

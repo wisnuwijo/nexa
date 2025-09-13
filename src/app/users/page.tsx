@@ -1,23 +1,33 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getUserList, User } from '@/api/user';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import MainLayout from '../components/main_layout';
 import { CalendarDaysIcon, PlusIcon, UserIcon } from '@heroicons/react/24/solid';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import MainLayout from '../components/main_layout';
 
-interface UserData {
-    name: string;
-    access: string;
-    createdAt: string;
-}
-
-export default function InspectionPage() {
+export default function UsersPage() {
     const router = useRouter();
-    const userList: UserData[] = [
-        { name: 'Tristan', access: 'Administrator', createdAt: '21 Mar 2025' },
-        { name: 'Wisnu', access: 'Inspektor', createdAt: '31 Jan 2025' },
-        { name: 'Tedy', access: 'Inspektor', createdAt: '04 Mei 2020' }
-    ];
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        async function fetchUsers() {
+            setLoading(true);
+            try {
+                const data = await getUserList();
+                setUsers(data);
+            } catch (err) {
+                toast.error('Gagal mengambil daftar user: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchUsers();
+    }, []);
 
     return (
         <MainLayout appBarTitle='' showNavBar={true}>
@@ -32,35 +42,41 @@ export default function InspectionPage() {
                     </div>
 
                     <div className="mb-8">
-                        <div className="space-y-4">
-                            {userList.map((ext, index) => (
-                                <div key={index} className="bg-white p-4 rounded-2xl shadow-sm">
-                                    <Link key={index} href={'/users/d/' + index}>
-                                        <div className="flex items-center space-x-4">
-                                            <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
-                                                <UserIcon width={20} height={20} color='#9334e9' />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-gray-900 font-medium text-base">{ext.name}</h3>
-                                                <div className="grid grid-cols-2 gap-1">
-                                                    <div className="text-left">
-                                                        <p className="text-xs text-gray-500">Akses</p>
-                                                        <p className="text-sm font-medium text-gray-700">{ext.access}</p>
-                                                    </div>
-                                                    <div className="text-left">
-                                                        <p className="text-xs text-gray-500">Tgl. diundang</p>
-                                                        <p className="text-sm font-medium text-gray-700">
-                                                            <CalendarDaysIcon width={15} height={15} color='#9334e9' className="inline-block mr-2" />
-                                                            {ext.createdAt}
-                                                        </p>
+                        {loading ? (
+                            <div>Memuat data user...</div>
+                        ) : users.length === 0 ? (
+                            <div>Tidak ada user ditemukan.</div>
+                        ) : (
+                            <div className="space-y-4">
+                                {users.map((user) => (
+                                    <div key={user.id} className="bg-white p-4 rounded-2xl shadow-sm">
+                                        <Link href={'/users/d/' + user.id}>
+                                            <div className="flex items-center space-x-4">
+                                                <div className="w-[50px] h-[50px] bg-gray-200 rounded-xl overflow-hidden relative flex-shrink-0 flex items-center justify-center">
+                                                    <UserIcon width={20} height={20} color='#9334e9' />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h3 className="text-gray-900 font-medium text-base">{user.name}</h3>
+                                                    <div className="grid grid-cols-2 gap-1">
+                                                        <div className="text-left">
+                                                            <p className="text-xs text-gray-500">Akses</p>
+                                                            <p className="text-sm font-medium text-gray-700">{user.nama_level}</p>
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <p className="text-xs text-gray-500">Tgl. dibuat</p>
+                                                            <p className="text-sm font-medium text-gray-700">
+                                                                <CalendarDaysIcon width={15} height={15} color='#9334e9' className="inline-block mr-2" />
+                                                                {user.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
+                                        </Link>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
