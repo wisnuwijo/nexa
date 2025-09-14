@@ -5,9 +5,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
-import { getExtinguisherList, Extinguisher } from '../../api/extinguisher';
+import { getExtinguisherList, Extinguisher, getExtinguisherInventoryPdfUrl } from '../../api/extinguisher';
 import MainLayout from '../components/main_layout';
 import { getLocationList, Location } from '@/api/location';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function ExtingisherPage() {
     function formatDate(dateStr: string) {
@@ -28,6 +30,7 @@ export default function ExtingisherPage() {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+    const [isDownloading, setIsDownloading] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState('');
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
@@ -79,8 +82,27 @@ export default function ExtingisherPage() {
         router.push(`/extinguisher/d/${id}`);
     };
 
+    const handleDownloadInventoryPdf = async () => {
+        if (isDownloading) return;
+        setIsDownloading(true);
+        setIsModalOpen(false);
+        const toastId = toast.loading("Membuat laporan inventaris...");
+
+        try {
+            const { download_url } = await getExtinguisherInventoryPdfUrl();
+            toast.update(toastId, { render: "Laporan berhasil dibuat. Mengunduh...", type: "success", isLoading: false, autoClose: 3000 });
+            window.open(download_url, '_blank');
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Gagal mengunduh laporan.';
+            toast.update(toastId, { render: errorMessage, type: "error", isLoading: false, autoClose: 5000 });
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
     return (
         <MainLayout appBarTitle='' showNavBar={true}>
+            <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop />
             <div className="min-h-screen bg-gray-50 relative">
                 <div className="max-w-[430px] md:max-w-full mx-auto px-4 pb-24">
                     {/* Header */}
@@ -264,10 +286,8 @@ export default function ExtingisherPage() {
                                 </button>
                                 <button
                                     className="w-full flex items-center space-x-3 p-3 hover:bg-gray-50 rounded-xl transition-colors"
-                                    onClick={() => {
-                                        // Handle PDF download
-                                        setIsModalOpen(false);
-                                    }}
+                                    onClick={handleDownloadInventoryPdf}
+                                    disabled={isDownloading}
                                 >
                                     <DocumentArrowDownIcon className="w-6 h-6 text-purple-600" />
                                     <span className="text-gray-700">Download PDF</span>

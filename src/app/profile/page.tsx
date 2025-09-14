@@ -1,7 +1,7 @@
 "use client";
 
 import { User } from "@/api/auth";
-import { getBrokenExtinguisherCount, getBrokenExtinguisherList, BrokenExtinguisher } from "@/api/extinguisher";
+import { getBrokenExtinguisherCount, getBrokenExtinguisherList, BrokenExtinguisher, getInspectedExtinguisherCount, getInspectionStats, InspectionStats } from "@/api/extinguisher";
 import { useEffect, useState } from "react";
 import MainLayout from "../components/main_layout";
 import Link from "next/link";
@@ -14,6 +14,10 @@ export default function ProfilePage() {
     const [isFinishModalOpen, setIsFinishModalOpen] = useState(false);
     const [brokenCount, setBrokenCount] = useState<number | null>(null);
     const [brokenCountError, setBrokenCountError] = useState<string | null>(null);
+    const [inspectedCount, setInspectedCount] = useState<number | null>(null);
+    const [inspectedCountError, setInspectedCountError] = useState<string | null>(null);
+    const [inspectionStats, setInspectionStats] = useState<InspectionStats | null>(null);
+    const [inspectionStatsError, setInspectionStatsError] = useState<string | null>(null);
 
     // Modal for broken extinguishers
     const [showBrokenModal, setShowBrokenModal] = useState(false);
@@ -26,6 +30,14 @@ export default function ProfilePage() {
         getBrokenExtinguisherCount()
             .then(count => { if (mounted) setBrokenCount(count); })
             .catch(err => { if (mounted) setBrokenCountError('Gagal memuat data, error: ' + err.message); });
+        
+        getInspectedExtinguisherCount()
+            .then(count => { if (mounted) setInspectedCount(count); })
+            .catch(err => { if (mounted) setInspectedCountError('Gagal memuat data, error: ' + err.message); });
+
+        getInspectionStats()
+            .then(stats => { if (mounted) setInspectionStats(stats); })
+            .catch(err => { if (mounted) setInspectionStatsError('Gagal memuat data, error: ' + err.message); });
         return () => { mounted = false; };
     }, []);
 
@@ -79,11 +91,11 @@ export default function ProfilePage() {
     });
 
     // Mock recent inspections
-    const [recentInspections] = useState([
-        { id: "EXT-089", location: "Lt.3 - Server", date: "10 Jun", status: "Lulus" },
-        { id: "EXT-045", location: "Dapur", date: "8 Jun", status: "Gagal" },
-        { id: "EXT-112", location: "Parkir B1", date: "5 Jun", status: "Lulus" }
-    ]);
+    // const [recentInspections] = useState([
+    //     { id: "EXT-089", location: "Lt.3 - Server", date: "10 Jun", status: "Lulus" },
+    //     { id: "EXT-045", location: "Dapur", date: "8 Jun", status: "Gagal" },
+    //     { id: "EXT-112", location: "Parkir B1", date: "5 Jun", status: "Lulus" }
+    // ]);
 
     const handleLogout = () => {
         setIsFinishModalOpen(false);
@@ -155,7 +167,7 @@ export default function ProfilePage() {
                         <div className="flex justify-center pt-5">
                             <div className="relative group w-20 h-20 rounded-full overflow-hidden border-1 border-white shadow-md bg-gray-200 flex items-center justify-center">
                                 <img
-                                    src="/images/profile.jpg"
+                                    src={user.image != null && user.image !== "" ? user.image : "/images/profile.jpg"}
                                     alt="Profile Picture"
                                     className="object-cover w-full h-full"
                                 />
@@ -170,8 +182,7 @@ export default function ProfilePage() {
                                 </button>
                             </div>
                         </div>
-                        <h2 className="text-lg font-bold text-white">{user.name}</h2>
-                        <p className="text-blue-100 text-sm">Administrator</p>
+                        <h2 className="text-lg font-bold text-white mt-2">{user.name}</h2>
                     </div>
 
                     <div className="p-4 space-y-3">
@@ -195,19 +206,28 @@ export default function ProfilePage() {
                         onClick={handleShowBrokenModal}
                         clickable
                     />
-                    <StatCard title="Total Inspeksi" value="12" icon="🧯" />
-                    <StatCard title="Lulus Inspeksi" value="89%" icon="✅" isGood />
+                    <StatCard 
+                        title="Total Inspeksi" 
+                        value={inspectedCountError ? '-' : inspectedCount === null ? '...' : inspectedCount} 
+                        icon="🧯" 
+                    />
+                    <StatCard 
+                        title="Lulus Inspeksi" 
+                        value={inspectionStatsError ? '-' : inspectionStats === null ? '...' : `${inspectionStats.percentageNotRusak}%`} 
+                        icon="✅" 
+                        isGood 
+                    />
                 {/* Broken Extinguisher Modal */}
                 {showBrokenModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center" onClick={() => setShowBrokenModal(false)}>
                         <div className="bg-white rounded-lg p-4 mx-4 w-full max-w-md relative" onClick={e => e.stopPropagation()}>
                             <button className="absolute top-2 right-2 text-gray-400 hover:text-gray-600" onClick={() => setShowBrokenModal(false)}>&times;</button>
-                            <h2 className="text-lg font-bold mb-2 text-gray-800">Daftar APAR Perlu Tindakan</h2>
+                            <h2 className="text-lg font-bold mb-2 text-gray-800">Daftar APAR Perlu Tindakan ({brokenCount})</h2>
                             {brokenListLoading && <div className="text-gray-500 py-4">Memuat data...</div>}
                             {brokenListError && <div className="text-red-500 py-4">{brokenListError}</div>}
                             {brokenList && brokenList.length === 0 && <div className="text-gray-500 py-4">Tidak ada APAR rusak.</div>}
                             {brokenList && brokenList.length > 0 && (
-                                <ul className="divide-y max-h-100 overflow-y-auto">
+                                <ul className="divide-y max-h-[400px] overflow-y-auto">
                                     {brokenList.map((item, idx) => (
                                         <li key={item.id} className="py-3">
                                             <div className="flex justify-between items-center">
@@ -259,7 +279,7 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Recent Inspections */}
-                <div className="bg-white rounded-lg shadow mt-3">
+                {/* <div className="bg-white rounded-lg shadow mt-3">
                     <div className="p-3 border-b">
                         <h2 className="font-medium text-gray-500">Inspeksi Terakhir</h2>
                     </div>
@@ -282,7 +302,7 @@ export default function ProfilePage() {
                             </div>
                         ))}
                     </div>
-                </div>
+                </div> */}
 
                 {/* Bottom Action Buttons */}
                 <div className="bg-white rounded-lg shadow mt-5 flex justify-center">

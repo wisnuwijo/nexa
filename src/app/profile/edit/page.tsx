@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { User } from '@/api/auth';
 import MainLayout from '@/app/components/main_layout';
+import { updateUserProfile } from '@/api/user';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function EditProfilePage() {
     const router = useRouter();
-    // Mock user data (replace with real fetch if available)
     const [user, setUser] = useState<User>(() => {
         if (typeof window !== "undefined") {
             const storedUser = localStorage.getItem("user");
@@ -39,21 +41,57 @@ export default function EditProfilePage() {
     const [showPasswordSection, setShowPasswordSection] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setUser(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // TODO: Save user changes (API call)
-        // Optionally validate password
-        router.back();
+
+        if (showPasswordSection && password && password !== confirmPassword) {
+            toast.error("Password dan konfirmasi password tidak cocok.");
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const params = {
+                id: user.id,
+                name: user.name,
+                username: user.username,
+                email: user.email,
+                ...(showPasswordSection && password && { password: password }),
+            };
+
+            const response = await updateUserProfile(params);
+
+            // Update localStorage with the new user data from the response
+            localStorage.setItem('user', JSON.stringify(response.data));
+
+            // Update local state as well to reflect changes if needed elsewhere on the page
+            setUser(response.data as User);
+
+            toast.success("Profil berhasil diperbarui!");
+
+            setTimeout(() => {
+                router.back();
+            }, 2000);
+
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Gagal memperbarui profil.";
+            toast.error(message);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <MainLayout appBarTitle='Edit Profil' showNavBar={true}>
+            <ToastContainer position="top-center" autoClose={3000} />
             <div className="mx-auto pt-20 max-w-[430px] md:max-w-full px-4 pb-24">
                 <form className="bg-white rounded-lg shadow p-6 space-y-6" onSubmit={handleSubmit}>
                     <h2 className="text-lg font-bold text-gray-900 mb-2">Edit Profil</h2>
@@ -70,7 +108,7 @@ export default function EditProfilePage() {
                             <label className="block text-xs text-gray-600 mb-1">Email</label>
                             <input type="email" name="email" value={user.email} onChange={handleInputChange} className="w-full h-12 px-4 rounded-xl border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" required />
                         </div>
-                        <div>
+                        {/* <div>
                             <label className="block text-xs text-gray-600 mb-1">Telepon</label>
                             <input type="tel" name="telepon" value={""} onChange={handleInputChange} className="w-full h-12 px-4 rounded-xl border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500" required />
                         </div>
@@ -80,7 +118,7 @@ export default function EditProfilePage() {
                                 <option value="male">Laki-laki</option>
                                 <option value="female">Perempuan</option>
                             </select>
-                        </div>
+                        </div> */}
                     </div>
                     <div>
                         <button type="button" className="w-full bg-gray-100 text-purple-600 py-2 rounded-lg text-sm mb-2" onClick={() => setShowPasswordSection(v => !v)}>
@@ -100,8 +138,8 @@ export default function EditProfilePage() {
                         )}
                     </div>
                     <div className="pt-4">
-                        <button type="submit" className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
-                            Simpan Perubahan
+                        <button type="submit" className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center disabled:bg-gray-400" disabled={isSubmitting}>
+                            {isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan'}
                         </button>
                     </div>
                 </form>

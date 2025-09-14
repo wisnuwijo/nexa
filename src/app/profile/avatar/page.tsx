@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import MainLayout from '@/app/components/main_layout';
+import { getCurrentUser } from '@/api/auth';
 import { updateUserProfilePicture } from '@/api/user';
+import MainLayout from '@/app/components/main_layout';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getCurrentUser } from '@/api/auth';
 
 export default function EditAvatarPage() {
     const router = useRouter();
@@ -16,11 +16,15 @@ export default function EditAvatarPage() {
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // For cropping (simple center crop preview, not actual crop logic)
-    const [crop, setCrop] = useState({ x: 0, y: 0, size: 100 });
-
-    // Get userId from localStorage (replace with your actual logic if needed)
+    // Get userId from localStorage
     const userId = getCurrentUser()?.id?.toString() || null;
+
+    useEffect(() => {
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+            setImage(currentUser.image);
+        }
+    }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -53,11 +57,16 @@ export default function EditAvatarPage() {
         }
         setUploading(true);
         try {
-            await updateUserProfilePicture(userId, file);
+            const response = await updateUserProfilePicture(userId, file);
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                // The response.data contains the full updated user object.
+                // We can use it to update the user data in localStorage.
+                currentUser.image = response.data.image;
+                localStorage.setItem('user', JSON.stringify(currentUser));
+            }
             toast.success('Foto profil berhasil diperbarui!');
-            setTimeout(() => {
-                router.back();
-            }, 2000);
+            setTimeout(() => router.back(), 2000);
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Gagal memperbarui foto profil.';
             setError(msg);
@@ -80,7 +89,6 @@ export default function EditAvatarPage() {
                                     src={image}
                                     alt="Preview"
                                     className="object-cover w-full h-full"
-                                    style={{ objectPosition: `${crop.x}% ${crop.y}%` }}
                                 />
                             ) : (
                                 <span className="text-5xl text-gray-300">👤</span>
@@ -106,19 +114,9 @@ export default function EditAvatarPage() {
                         >
                             Pilih Foto
                         </button>
-                        <p className='text-center'>
-                            <span className="text-xs text-gray-500">Anda dapat mengatur area potong foto menggunakan kontrol di bawah ini.</span>
-                        </p>
-                        {error && <p className="text-red-500 text-xs">{error}</p>}
-                        {/* Simple crop controls (move preview area) */}
-                        {image && (
-                            <div className="flex gap-2 items-center mt-2">
-                                <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => setCrop(c => ({ ...c, y: Math.max(0, c.y - 10) }))} disabled={uploading}>⬆️</button>
-                                <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => setCrop(c => ({ ...c, y: Math.min(100, c.y + 10) }))} disabled={uploading}>⬇️</button>
-                                <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => setCrop(c => ({ ...c, x: Math.max(0, c.x - 10) }))} disabled={uploading}>⬅️</button>
-                                <button type="button" className="px-2 py-1 bg-gray-200 rounded" onClick={() => setCrop(c => ({ ...c, x: Math.min(100, c.x + 10) }))} disabled={uploading}>➡️</button>
-                            </div>
-                        )}
+                        <div>
+                            {error && <p className="text-red-500">{error}</p>}
+                        </div>
                     </div>
                     <div className="pt-4">
                         <button type="submit" className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center disabled:bg-gray-300 disabled:text-gray-400" disabled={uploading}>

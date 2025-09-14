@@ -124,6 +124,61 @@ export async function register(params: RegisterParams) {
     return res.json();
 }
 
+export type GenerateOtpResponse = {
+    message: string;
+};
+
+export async function generateOtp(email: string): Promise<GenerateOtpResponse> {
+    const formData = new FormData();
+    formData.append('email', email);
+
+    const res = await fetch(`${API_BASE_URL}/generate_code`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Gagal mengirim kode OTP.' }));
+        throw new Error(errorData.message || 'Gagal mengirim kode OTP.');
+    }
+
+    return res.json();
+}
+
+export type VerifyOtpResponse = {
+    status: string;
+    message: string;
+    user: User;
+};
+
+export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpResponse> {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('verifed_code', otp);
+
+    const res = await fetch(`${API_BASE_URL}/email_verify`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Gagal memverifikasi kode OTP.' }));
+        throw new Error(errorData.message || 'Gagal memverifikasi kode OTP.');
+    }
+
+    const data: VerifyOtpResponse = await res.json();
+    if (data.status !== 'success') {
+        throw new Error(data.message || 'Verifikasi gagal.');
+    }
+    return data;
+}
+
 export function getCurrentUser(): User | null {
     // Check if we're in a browser environment
     if (typeof window === 'undefined') {

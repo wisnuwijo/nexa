@@ -33,7 +33,7 @@ export default function ResetPassword() {
       toast.success('Email reset password berhasil dikirim. Silakan cek email Anda.');
       // Navigate to verify email page after successful request
       setTimeout(() => {
-        router.push('/reset_password/verify_email');
+        router.push('/reset_password/verify_email?email=' + formData.email);
       }, 2000);
     } catch (err) {
       const errorMessage = typeof err === 'string'

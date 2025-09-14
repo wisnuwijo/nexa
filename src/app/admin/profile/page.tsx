@@ -118,15 +118,6 @@ export default function ProfilePage() {
                                     alt="Profile Picture"
                                     className="object-cover w-full h-full"
                                 />
-                                <button
-                                    onClick={() => router.push('/profile/avatar')}
-                                    className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                                    title="Edit Foto Profil"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487a2.1 2.1 0 1 1 2.97 2.97L7.5 19.789l-4 1 1-4 14.362-14.302z" />
-                                    </svg>
-                                </button>
                             </div>
                         </div>
                         <h2 className="text-lg font-bold text-white">{user.name}</h2>

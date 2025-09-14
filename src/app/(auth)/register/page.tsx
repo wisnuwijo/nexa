@@ -48,6 +48,7 @@ export default function Register() {
             if (res && res.token) {
               localStorage.setItem('user', JSON.stringify(res.user));
               document.cookie = `token=${res.token}; path=/; secure; samesite=strict`;
+              document.cookie = `id_level=${res.user.id_level}; path=/; secure; samesite=strict`;
               router.push('/home');
             }
           }, 1000);

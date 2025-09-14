@@ -221,6 +221,102 @@ export async function getExtinguisherCount(): Promise<number> {
     return data.data;
 }
 
+export type InspectedExtinguisherCountResponse = {
+    message: string;
+    data: {
+        totalAparInspection: number;
+    };
+};
+
+export async function getInspectedExtinguisherCount(): Promise<number> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/count_apar_inspection`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil jumlah APAR yang telah diinspeksi.');
+    }
+
+    const data: InspectedExtinguisherCountResponse = await res.json();
+    return data.data.totalAparInspection;
+}
+
+export type InspectionStats = {
+    totalInspection: number;
+    totalNotRusak: number;
+    totalRusak: number;
+    percentageNotRusak: number;
+    percentageRusak: number;
+};
+
+export type InspectionStatsResponse = {
+    message: string;
+    data: InspectionStats;
+};
+
+export async function getInspectionStats(): Promise<InspectionStats> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/count_apar_inspection_done`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil statistik inspeksi.');
+    }
+
+    const data: InspectionStatsResponse = await res.json();
+    return data.data;
+}
+
 export type AddProductParams = {
     deskripsi: string;
     brand: string;
@@ -410,6 +506,48 @@ export async function getExtinguisherList(params?: { lokasi?: string; search?: s
 
     const result: ExtinguisherListResponse = await res.json();
     return result.list_apar;
+}
+
+export type ExtinguisherInventoryPdfResponse = {
+    message: string;
+    download_url: string;
+};
+
+export async function getExtinguisherInventoryPdfUrl(): Promise<ExtinguisherInventoryPdfResponse> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/apar_pdf`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil link download laporan inventaris APAR.');
+    }
+
+    return res.json();
 }
 
 export async function getQrStickerList(): Promise<QrSticker[]> {

@@ -1,5 +1,5 @@
 import { API_BASE_URL } from "./config";
-import { logout } from './auth';
+import { getCurrentUser, logout } from './auth';
 
 // Update user profile picture
 export type UpdateUserProfilePictureResponse = {
@@ -66,6 +66,82 @@ export async function updateUserProfilePicture(id: number | string, file: File):
 
 	const data: UpdateUserProfilePictureResponse = await res.json();
 	return data;
+}
+
+export type UpdateUserProfileParams = {
+	id: number | string;
+	name: string;
+	username: string;
+	email: string;
+	password?: string;
+};
+
+export type UpdateUserProfileResponse = {
+	message: string;
+	data: {
+		id: number;
+		name: string;
+		username: string;
+		email: string;
+		email_verified_at: string | null;
+		code_verifikasi: number | string | null;
+		akun_aktif: number;
+		id_level: number | string;
+		gender: string;
+		kode_customer: string;
+		image: string | null;
+		created_by: string | null;
+		created_at: string;
+		updated_by: number | string | null;
+		updated_at: string;
+		deleted_at: string | null;
+	};
+};
+
+export async function updateUserProfile(params: UpdateUserProfileParams): Promise<UpdateUserProfileResponse> {
+	const token = document.cookie
+		.split('; ')
+		.find(row => row.startsWith('token='))
+		?.split('=')[1];
+
+	if (!token) {
+		setTimeout(() => {
+			logout();
+			window.location.reload();
+		}, 2000);
+		throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+	}
+
+	const formData = new FormData();
+	formData.append('id', String(params.id));
+	formData.append('name', params.name);
+	formData.append('username', params.username);
+	formData.append('email', params.email);
+
+	if (params.password) {
+		formData.append('password', params.password);
+	}
+
+	const user = getCurrentUser();
+	if (user != null) {
+		formData.append('level', user.id_level.toString());
+	}
+
+	const res = await fetch(`${API_BASE_URL}/customer/update`, {
+		method: 'POST',
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Accept': 'application/json',
+		},
+		body: formData,
+	});
+
+	if (!res.ok) {
+		const errorData = await res.json().catch(() => ({ message: 'Gagal memperbarui profil.' }));
+		throw new Error(errorData.message || 'Gagal memperbarui profil.');
+	}
+
+	return res.json();
 }
 
 // Create user
