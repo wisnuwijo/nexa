@@ -81,6 +81,83 @@ export async function getInspectionProgress(id_jadwal: string): Promise<Inspecti
     }
     return result;
 }
+
+// Type for last inspection item by user
+export type LastInspectionItem = {
+    id_inspection: number;
+    no_jadwal: string;
+    kode_barang: string;
+    kode_customer: string;
+    nama_customer: string;
+    tanggal_cek: string;
+    lokasi: string | null;
+    barcode: string;
+    type: string;
+    brand: string;
+    media: string;
+    kapasitas: string;
+    pressure: string;
+    pressure_img: string | null;
+    hose: string;
+    hose_img: string | null;
+    head_valve: string;
+    head_valve_img: string | null;
+    expired: string;
+    expired_img: string | null;
+    korosi: string;
+    korosi_img: string | null;
+    status: string;
+    qc: string;
+    created_at: string;
+    updated_at: string;
+    location_point: string | null;
+};
+
+export type LastInspectionResponse = {
+    message: string;
+    list_inspection: LastInspectionItem[];
+};
+
+export async function getLastInspectionsByUser(): Promise<LastInspectionItem[]> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/inspection/last_inspection_user`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil riwayat inspeksi terakhir.');
+    }
+
+    const result: LastInspectionResponse = await res.json();
+    if (!result.list_inspection || !Array.isArray(result.list_inspection)) {
+        throw new Error(result.message || 'Gagal mengambil riwayat inspeksi terakhir.');
+    }
+    return result.list_inspection;
+}
+
 // Type for inspected extinguisher item
 export type InspectedExtinguisher = {
     id: number;

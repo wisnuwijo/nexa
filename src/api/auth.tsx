@@ -159,7 +159,7 @@ export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpRe
     formData.append('email', email);
     formData.append('verifed_code', otp);
 
-    const res = await fetch(`${API_BASE_URL}/email_verify`, {
+    const res = await fetch(`${API_BASE_URL}/change_password`, {
         method: 'POST',
         headers: {
             'Accept': 'application/json',
@@ -175,6 +175,43 @@ export async function verifyOtp(email: string, otp: string): Promise<VerifyOtpRe
     const data: VerifyOtpResponse = await res.json();
     if (data.status !== 'success') {
         throw new Error(data.message || 'Verifikasi gagal.');
+    }
+    return data;
+}
+
+export type UpdatePasswordWithTokenParams = {
+    email: string;
+    new_pass: string;
+    reset_token: string;
+};
+
+export type UpdatePasswordWithTokenResponse = {
+    status: string;
+    message: string;
+};
+
+export async function updatePasswordWithToken(params: UpdatePasswordWithTokenParams): Promise<UpdatePasswordWithTokenResponse> {
+    const formData = new FormData();
+    formData.append('email', params.email);
+    formData.append('new_pass', params.new_pass);
+    formData.append('reset_token', params.reset_token);
+
+    const res = await fetch(`${API_BASE_URL}/set_password`, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Gagal mengubah kata sandi.' }));
+        throw new Error(errorData.message || 'Gagal mengubah kata sandi.');
+    }
+
+    const data: UpdatePasswordWithTokenResponse = await res.json();
+    if (data.status !== 'success') {
+        throw new Error(data.message || 'Gagal mengubah kata sandi.');
     }
     return data;
 }
@@ -216,6 +253,8 @@ export type User = {
     updated_by: string | null;
     updated_at: string;
     deleted_at: string | null;
+    reset_token?: string | null;
+    reset_token_expired?: string | null;
 };
 
 export type RegisterParams = {

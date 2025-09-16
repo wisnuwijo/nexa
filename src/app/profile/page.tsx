@@ -1,6 +1,7 @@
 "use client";
 
 import { User } from "@/api/auth";
+import { getLastInspectionsByUser, LastInspectionItem } from "@/api/inspection";
 import { getBrokenExtinguisherCount, getBrokenExtinguisherList, BrokenExtinguisher, getInspectedExtinguisherCount, getInspectionStats, InspectionStats } from "@/api/extinguisher";
 import { useEffect, useState } from "react";
 import MainLayout from "../components/main_layout";
@@ -18,6 +19,9 @@ export default function ProfilePage() {
     const [inspectedCountError, setInspectedCountError] = useState<string | null>(null);
     const [inspectionStats, setInspectionStats] = useState<InspectionStats | null>(null);
     const [inspectionStatsError, setInspectionStatsError] = useState<string | null>(null);
+    const [recentInspections, setRecentInspections] = useState<LastInspectionItem[]>([]);
+    const [recentInspectionsLoading, setRecentInspectionsLoading] = useState(true);
+    const [recentInspectionsError, setRecentInspectionsError] = useState<string | null>(null);
 
     // Modal for broken extinguishers
     const [showBrokenModal, setShowBrokenModal] = useState(false);
@@ -38,6 +42,19 @@ export default function ProfilePage() {
         getInspectionStats()
             .then(stats => { if (mounted) setInspectionStats(stats); })
             .catch(err => { if (mounted) setInspectionStatsError('Gagal memuat data, error: ' + err.message); });
+
+        setRecentInspectionsLoading(true);
+        getLastInspectionsByUser()
+            .then(inspections => {
+                if (mounted) setRecentInspections(inspections);
+            })
+            .catch(err => {
+                if (mounted) setRecentInspectionsError(err instanceof Error ? err.message : 'Gagal memuat riwayat inspeksi');
+            })
+            .finally(() => {
+                if (mounted) setRecentInspectionsLoading(false);
+            });
+
         return () => { mounted = false; };
     }, []);
 
@@ -89,13 +106,6 @@ export default function ProfilePage() {
             kode_customer: "",
         } as User;
     });
-
-    // Mock recent inspections
-    // const [recentInspections] = useState([
-    //     { id: "EXT-089", location: "Lt.3 - Server", date: "10 Jun", status: "Lulus" },
-    //     { id: "EXT-045", location: "Dapur", date: "8 Jun", status: "Gagal" },
-    //     { id: "EXT-112", location: "Parkir B1", date: "5 Jun", status: "Lulus" }
-    // ]);
 
     const handleLogout = () => {
         setIsFinishModalOpen(false);
@@ -156,6 +166,16 @@ export default function ProfilePage() {
         const month = months[date.getMonth()];
         const year = date.getFullYear();
         return `${day} ${month} ${year}`;
+    }
+
+    function formatShortDate(dateStr: string): string {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        return `${day} ${month}`;
     }
 
     return (
@@ -279,30 +299,38 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Recent Inspections */}
-                {/* <div className="bg-white rounded-lg shadow mt-3">
+                <div className="bg-white rounded-lg shadow mt-3">
                     <div className="p-3 border-b">
                         <h2 className="font-medium text-gray-500">Inspeksi Terakhir</h2>
                     </div>
                     <div className="divide-y">
-                        {recentInspections.map((item, i) => (
-                            <div key={i} className="p-3">
-                                <div className="flex justify-between">
-                                    <div>
-                                        <p className="font-medium text-sm text-gray-800">#{item.id}</p>
-                                        <p className="text-xs text-gray-600">{item.location}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-500">{item.date}</p>
-                                        <span className={`text-xs px-2 py-1 rounded-full ${item.status === "Lulus" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                            }`}>
-                                            {item.status}
-                                        </span>
+                        {recentInspectionsLoading ? (
+                            <div className="p-3 text-center text-gray-500">Memuat riwayat...</div>
+                        ) : recentInspectionsError ? (
+                            <div className="p-3 text-center text-red-500">{recentInspectionsError}</div>
+                        ) : recentInspections.length === 0 ? (
+                            <div className="p-3 text-center text-gray-500">Tidak ada riwayat inspeksi.</div>
+                        ) : (
+                            recentInspections.slice(0, 5).map((item) => (
+                                <div key={item.id_inspection} className="p-3">
+                                    <div className="flex justify-between">
+                                        <div>
+                                            <p className="font-medium text-sm text-gray-800">#{item.kode_barang}</p>
+                                            <p className="text-xs text-gray-600">{item.lokasi || item.location_point || '- - -'}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs text-gray-500">{formatShortDate(item.tanggal_cek)}</p>
+                                            <span className={`text-xs px-2 py-1 rounded-full ${item.status !== "rusak" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                                }`}>
+                                                {item.status !== "rusak" ? "OK" : "APAR Rusak"}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))
+                        )}
                     </div>
-                </div> */}
+                </div>
 
                 {/* Bottom Action Buttons */}
                 <div className="bg-white rounded-lg shadow mt-5 flex justify-center">

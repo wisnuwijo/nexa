@@ -266,6 +266,54 @@ export async function getInspectedExtinguisherCount(): Promise<number> {
     return data.data.totalAparInspection;
 }
 
+export type InspectedExtinguisherPercentage = {
+    persentase: string;
+    count_apar: number;
+};
+
+export type InspectedExtinguisherPercentageResponse = {
+    message: string;
+    data: InspectedExtinguisherPercentage;
+};
+
+export async function getInspectedExtinguisherPercentage(): Promise<InspectedExtinguisherPercentage> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/apar_done_permount`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil persentase APAR yang telah diinspeksi.');
+    }
+
+    const data: InspectedExtinguisherPercentageResponse = await res.json();
+    return data.data;
+}
+
 export type InspectionStats = {
     totalInspection: number;
     totalNotRusak: number;

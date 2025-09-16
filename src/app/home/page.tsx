@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getExtinguisherCount, getBrokenExtinguisherParts } from '@/api/extinguisher';
+import { getExtinguisherCount, getBrokenExtinguisherParts, getInspectedExtinguisherPercentage, InspectedExtinguisherPercentage } from '@/api/extinguisher';
 import { showUserActivity, UserActivity } from '@/api/user';
 import MainLayout from '../components/main_layout';
 import { User, generateOtp, verifyOtp } from '@/api/auth';
@@ -12,6 +12,8 @@ export default function HomePage() {
   const [extinguisherCount, setExtinguisherCount] = useState<number | null>(null);
   const [extinguisherCountLoading, setExtinguisherCountLoading] = useState(true);
   const [defects, setDefects] = useState<{ name: string; percentage: number }[]>([]);
+  const [inspectedPercentage, setInspectedPercentage] = useState<InspectedExtinguisherPercentage | null>(null);
+  const [inspectedPercentageLoading, setInspectedPercentageLoading] = useState(true);
 
   // Map for translation and icon
   const defectNameMap: Record<string, { label: string; icon: string }> = {
@@ -74,6 +76,13 @@ export default function HomePage() {
       .then(parts => setDefects(parts.map(part => ({ name: part.nama_detail_activity, percentage: part.persentase_rusak }))))
       .catch(() => setDefects([]))
       .finally(() => setDefectsLoading(false));
+
+    // Fetch inspected percentage
+    setInspectedPercentageLoading(true);
+    getInspectedExtinguisherPercentage()
+      .then(data => setInspectedPercentage(data))
+      .catch(() => setInspectedPercentage(null))
+      .finally(() => setInspectedPercentageLoading(false));
   }, [user]);
 
   useEffect(() => {
@@ -184,11 +193,15 @@ export default function HomePage() {
             icon="🧯"
           />
 
-          {/* <MetricCard
+          <MetricCard
             title="APAR Selesai Inspeksi Bulan Ini"
-            value={`2 (20%)`}
+            value={inspectedPercentageLoading
+              ? '...'
+              : inspectedPercentage
+                ? `${Math.round((parseInt(inspectedPercentage.persentase, 10) / 100) * inspectedPercentage.count_apar)} (${inspectedPercentage.persentase})`
+                : '0 (0%)'}
             icon="✅"
-          /> */}
+          />
 
           {/* Defect Breakdown */}
           <div className="bg-white mb-4 p-6 rounded-lg shadow">

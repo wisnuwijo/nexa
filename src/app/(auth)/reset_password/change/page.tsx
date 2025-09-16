@@ -1,17 +1,32 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { updatePasswordWithToken } from '@/api/auth';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-export default function ChangePassword() {
+function ChangePasswordInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const email = searchParams.get('email');
+  const reset_token = searchParams.get('code');
+
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
+    password: '',
+    confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!email || !reset_token) {
+      toast.error("Informasi reset tidak valid. Silakan coba lagi dari awal.");
+      setTimeout(() => {
+        router.push('/reset_password');
+      }, 2000);
+    }
+  }, [email, reset_token, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -21,14 +36,42 @@ export default function ChangePassword() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Registration submitted:', formData);
+    if (!email || !reset_token) {
+      toast.error("Sesi tidak valid. Silakan ulangi proses reset password.");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Kata sandi dan konfirmasi kata sandi tidak cocok.");
+      return;
+    }
+    if (formData.password.length < 8) {
+      toast.error("Kata sandi minimal harus 8 karakter.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await updatePasswordWithToken({
+        email,
+        reset_token,
+        new_pass: formData.password,
+      });
+      toast.success("Kata sandi berhasil diubah! Anda akan diarahkan ke halaman login.");
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal mengubah kata sandi.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-0">
-      <div className="w-full max-w-[320px] bg-white rounded-2xl p-6">
+    <div className="w-full max-w-[320px] bg-white rounded-2xl p-6">
         <h1 className="text-gray-900 text-xl font-bold text-center mb-2">Ubah Kata Sandi</h1>
         <p className="text-gray-500 text-center text-sm mb-6">
           Ubah kata sandi untuk akun anda.
@@ -72,9 +115,9 @@ export default function ChangePassword() {
             <label className="block text-gray-600 text-[13px] mb-1.5">Konfirmasi sandi</label>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
+                type={showPassword ? 'text' : 'password'} // This should also toggle
+                name="confirmPassword"
+                value={formData.confirmPassword}
                 onChange={handleChange}
                 className="text-gray-600 w-full h-12 px-4 rounded-xl bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
                 placeholder="••••••••••••••"
@@ -102,10 +145,10 @@ export default function ChangePassword() {
 
           <button
             type="submit"
-            onClick={() => router.push('/')}
-            className="text-gray-600 w-full h-12 bg-purple-600 text-white rounded-xl hover:bg-purple-700 active:scale-[0.98] transition-all font-medium text-[15px] mt-"
+            disabled={isSubmitting}
+            className="w-full h-12 bg-purple-600 text-white rounded-xl hover:bg-purple-700 active:scale-[0.98] transition-all font-medium text-[15px] disabled:opacity-60"
           >
-            Ubah Sandi
+            {isSubmitting ? 'Menyimpan...' : 'Ubah Sandi'}
           </button>
         </form>
 
@@ -117,17 +160,17 @@ export default function ChangePassword() {
             <div className="relative flex justify-center text-sm"></div>
           </div>
         </div>
+    </div>
+  );
+}
 
-        <p className="mt-8 text-center text-gray-600 text-sm">
-          Ingat kata sandi?{' '}
-          <Link
-            href="/login"
-            className="text-purple-600 hover:text-purple-700 font-medium active:scale-95 transition-transform inline-block"
-          >
-            Masuk
-          </Link>
-        </p>
-      </div>
+export default function ChangePassword() {
+  return (
+    <main className="min-h-screen w-full flex items-center justify-center bg-white p-4 sm:p-0">
+      <ToastContainer position="top-center" />
+      <Suspense fallback={<div>Loading...</div>}>
+        <ChangePasswordInner />
+      </Suspense>
     </main>
   );
 }

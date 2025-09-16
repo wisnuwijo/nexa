@@ -3,29 +3,32 @@
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MainLayout from '@/app/components/main_layout';
-
-// Simulate fetching/saving letterhead from localStorage (replace with API as needed)
-function getStoredLetterhead(): string | null {
-    if (typeof window !== 'undefined') {
-        return localStorage.getItem('letterhead');
-    }
-    return null;
-}
-function setStoredLetterhead(dataUrl: string) {
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('letterhead', dataUrl);
-    }
-}
+import { uploadLetterhead, getLetterheadSettings } from '@/api/report';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function LetterheadPage() {
     const router = useRouter();
     const [letterhead, setLetterhead] = useState<string | null>(null);
-    // const [file, setFile] = useState<File | null>(null);
+    const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        setLetterhead(getStoredLetterhead());
+        setLoading(true);
+        getLetterheadSettings('inspection')
+            .then(settings => {
+                if (settings.length > 0) {
+                    setLetterhead(settings[0].image_url);
+                }
+            })
+            .catch(err => {
+                toast.error(err.message || 'Gagal memuat KOP surat saat ini.');
+            })
+            .finally(() => {
+                setLoading(false);
+            });
     }, []);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,7 +38,7 @@ export default function LetterheadPage() {
                 setError('File harus berupa gambar.');
                 return;
             }
-            // setFile(file);
+            setFile(file);
             const reader = new FileReader();
             reader.onload = (ev) => {
                 setLetterhead(ev.target?.result as string);
@@ -45,23 +48,40 @@ export default function LetterheadPage() {
         }
     };
 
-    const handleSave = (e: React.FormEvent) => {
+    const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (letterhead) {
-            setStoredLetterhead(letterhead);
+        if (!file) {
+            toast.error('Pilih file gambar terlebih dahulu.');
+            return;
         }
-        // TODO: Replace with API call to save letterhead
-        router.back();
+
+        const toastId = toast.loading("Mengunggah KOP surat...");
+        try {
+            // Call the upload function for both types
+            await Promise.all([
+                uploadLetterhead(file, 'inspection'),
+                uploadLetterhead(file, 'inventory')
+            ]);
+
+            toast.update(toastId, { render: "KOP surat berhasil diperbarui!", type: "success", isLoading: false, autoClose: 3000 });
+            setTimeout(() => router.back(), 2000);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Gagal mengunggah KOP surat.";
+            toast.update(toastId, { render: message, type: "error", isLoading: false, autoClose: 5000 });
+        }
     };
 
     return (
         <MainLayout appBarTitle="Ubah KOP PDF" showNavBar={true}>
+            <ToastContainer position="top-center" />
             <div className="mx-auto pt-20 max-w-[430px] md:max-w-full px-4 pb-24">
                 <form className="bg-white rounded-lg shadow p-6 space-y-6" onSubmit={handleSave}>
                     <h2 className="text-lg font-bold text-gray-900 mb-2">Ubah KOP PDF</h2>
                     <div className="flex flex-col items-center space-y-4">
                         <div className="relative w-full max-w-xs h-32 rounded-lg overflow-hidden border-4 border-white shadow bg-gray-100 flex items-center justify-center">
-                            {letterhead ? (
+                            {loading ? (
+                                <span className="text-sm text-gray-400">Memuat KOP surat...</span>
+                            ) : letterhead ? (
                                 <img
                                     src={letterhead}
                                     alt="Letterhead Preview"

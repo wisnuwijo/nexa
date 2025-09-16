@@ -64,10 +64,10 @@ function VerifyEmailInner() {
     }
     setIsSubmitting(true);
     try {
-      await verifyOtp(email, otp);
+      const verify = await verifyOtp(email, otp);
       toast.success('Verifikasi berhasil! Anda akan diarahkan untuk mengubah kata sandi.');
       setTimeout(() => {
-        router.push(`/reset_password/change?email=${email}&code=${otp}`);
+        router.push(`/reset_password/change?email=${email}&code=${verify.user.reset_token}`);
       }, 2000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Verifikasi gagal.';
