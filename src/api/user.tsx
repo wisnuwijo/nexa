@@ -144,6 +144,48 @@ export async function updateUserProfile(params: UpdateUserProfileParams): Promis
 	return res.json();
 }
 
+export type UpdateUserPasswordAdminParams = {
+	id: number | string;
+	password: string;
+};
+
+export type UpdateUserPasswordAdminResponse = {
+	message: string;
+};
+
+export async function updateUserPasswordAdmin(params: UpdateUserPasswordAdminParams): Promise<UpdateUserPasswordAdminResponse> {
+	const token = document.cookie
+		.split('; ')
+		.find(row => row.startsWith('token='))
+		?.split('=')[1];
+
+	if (!token) {
+		setTimeout(() => { logout(); window.location.reload(); }, 2000);
+		throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+	}
+
+	const formData = new FormData();
+	formData.append('id', String(params.id));
+	formData.append('password', params.password);
+
+	const res = await fetch(`${API_BASE_URL}/customer/update_pass_customer`, {
+		method: 'POST',
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Accept': 'application/json',
+		},
+		body: formData,
+	});
+
+	if (!res.ok) {
+		if (res.status === 401) { setTimeout(() => { logout(); window.location.reload(); }, 2000); throw new Error('Sesi telah berakhir. Silakan login kembali.'); }
+		const errorData = await res.json().catch(() => ({ message: 'Gagal memperbarui password.' }));
+		throw new Error(errorData.message || 'Gagal memperbarui password.');
+	}
+
+	return res.json();
+}
+
 // Create user
 export type CreateUserParams = {
 	name: string;
@@ -403,12 +445,14 @@ export type User = {
 	gender: string;
 	kode_customer: string;
 	image: string | null;
-	created_by: string;
+	created_by: string | null;
 	created_at: string;
 	updated_by: string | null;
 	updated_at: string;
 	deleted_at: string | null;
 	nama_level: string;
+	reset_token?: string | null;
+    reset_token_expired?: string | null;
 };
 
 export type UserListResponse = {
@@ -448,6 +492,51 @@ export async function getUserList(): Promise<User[]> {
 			throw new Error('Sesi telah berakhir. Silakan login kembali.');
 		}
 		throw new Error('Gagal mengambil daftar user.');
+	}
+
+	const data: UserListResponse = await res.json();
+	return data.data;
+}
+
+export async function getAllUserList(params?: { email?: string }): Promise<User[]> {
+	// Get token from cookies
+	const token = document.cookie
+		.split('; ')
+		.find(row => row.startsWith('token='))
+		?.split('=')[1];
+
+	if (!token) {
+		setTimeout(() => {
+			logout();
+			window.location.reload();
+		}, 2000);
+		throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+	}
+
+    let url = `${API_BASE_URL}/customer/list_user_all`;
+    if (params && params.email) {
+        const query = new URLSearchParams();
+        query.append('email', params.email);
+        url += `?${query.toString()}`;
+    }
+
+	const res = await fetch(url, {
+		method: 'GET',
+		headers: {
+			'Authorization': `Bearer ${token}`,
+			'Accept': 'application/json',
+		},
+	});
+
+	if (!res.ok) {
+		if (res.status === 401) {
+			setTimeout(() => {
+				logout();
+				window.location.reload();
+			}, 2000);
+			throw new Error('Sesi telah berakhir. Silakan login kembali.');
+		}
+		throw new Error('Gagal mengambil daftar semua user.');
 	}
 
 	const data: UserListResponse = await res.json();

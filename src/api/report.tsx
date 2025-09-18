@@ -1,5 +1,5 @@
 import { logout } from './auth';
-import { API_BASE_URL, SERVER_BASE_URL } from "./config";
+import { API_BASE_URL } from "./config";
 
 
 // Upload letterhead
@@ -104,6 +104,6 @@ export async function getLetterheadSettings(type: 'inspection' | 'inventory' | '
     // Prepend SERVER_BASE_URL to image_url
     return result.data.map(item => ({
         ...item,
-        image_url: `${SERVER_BASE_URL}${item.image_url}`
+        image_url: item.image_url
     }));
 }

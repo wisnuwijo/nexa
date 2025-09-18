@@ -90,8 +90,11 @@ export default function ExtingisherPage() {
 
         try {
             const { download_url } = await getExtinguisherInventoryPdfUrl();
-            toast.update(toastId, { render: "Laporan berhasil dibuat. Mengunduh...", type: "success", isLoading: false, autoClose: 3000 });
-            window.open(download_url, '_blank');
+            toast.dismiss(toastId);
+            toast.success("Laporan berhasil dibuat. Mengunduh...", { type: "success", autoClose: 2000, closeOnClick: true })
+            setTimeout(() => {
+                window.open(download_url, '_blank');
+            }, 1000)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Gagal mengunduh laporan.';
             toast.update(toastId, { render: errorMessage, type: "error", isLoading: false, autoClose: 5000 });

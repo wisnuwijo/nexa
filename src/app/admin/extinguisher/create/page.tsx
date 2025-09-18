@@ -1,11 +1,12 @@
 'use client';
 
-import { addProduct } from '@/api/extinguisher';
+import { addProductSuperAdmin } from '@/api/extinguisher';
 import AdminLayout from "@/app/components/admin_layout";
 import { useRouter } from 'next/navigation';
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getCustomerList, Customer } from '@/api/customer';
 
 export default function ExtinguisherCreatePage() {
     const router = useRouter();
@@ -18,10 +19,25 @@ export default function ExtinguisherCreatePage() {
         tanggal_produksi: '',
         tanggal_kadaluarsa: '',
         deskripsi: '',
-        jumlah: ''
+        jumlah: '',
+        kode_customer: ''
     });
+    const [customers, setCustomers] = useState<Customer[]>([]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    useEffect(() => {
+        async function fetchCustomers() {
+            try {
+                const customerData = await getCustomerList();
+                setCustomers(customerData);
+            } catch (err) {
+                console.log(err)
+                toast.error("Gagal memuat daftar client.");
+            }
+        }
+        fetchCustomers();
+    }, []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -34,7 +50,7 @@ export default function ExtinguisherCreatePage() {
         setIsSubmitting(true);
         
         try {
-            await addProduct({
+            await addProductSuperAdmin({
                 deskripsi: formData.deskripsi,
                 brand: formData.brand,
                 type: formData.type,
@@ -42,25 +58,16 @@ export default function ExtinguisherCreatePage() {
                 jumlah: formData.jumlah,
                 kapasitas: formData.kapasitas,
                 tanggal_produksi: formData.tanggal_produksi,
-                tanggal_kadaluarsa: formData.tanggal_kadaluarsa
+                tanggal_kadaluarsa: formData.tanggal_kadaluarsa,
+                kode_customer: formData.kode_customer || undefined
             });
             
-            toast.success('Produk berhasil dibuat! QR Stiker sedang diproses.');
+            toast.success('Produk berhasil dibuat!');
             setTimeout(() => {
-                router.push('/extinguisher/sticker');
+                router.back();
             }, 2000);
-
-            // Reset form after successful creation
-            setFormData({
-                brand: '',
-                media: '',
-                type: '',
-                kapasitas: '',
-                tanggal_produksi: '',
-                tanggal_kadaluarsa: '',
-                deskripsi: '',
-                jumlah: ''
-            });
+            
+            setFormData(prev => ({ ...prev, kode_customer: '' }));
             
         } catch (err) {
             const errorMessage = typeof err === 'string'
@@ -172,14 +179,15 @@ export default function ExtinguisherCreatePage() {
                         <div>
                             <label className="block text-gray-600 text-[13px] mb-1.5">Client (Opsional)</label>
                             <select
-                                name="client"
+                                name="kode_customer"
+                                value={formData.kode_customer}
+                                onChange={handleChange}
                                 className="w-full h-12 px-4 text-gray-500 rounded-xl bg-white border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-[15px]"
-                                required
                             >
-                                <option value="">- - -</option>
-                                <option value="Client A">Client A</option>
-                                <option value="Client B">Client B</option>
-                                <option value="Client C">Client C</option>
+                                <option value="">- Pilih Client -</option>
+                                {customers.map(customer => (
+                                    <option key={customer.id_customer} value={customer.kode_customer}>{customer.nama_customer}</option>
+                                ))}
                             </select>
                         </div>
 

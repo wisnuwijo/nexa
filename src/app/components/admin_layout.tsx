@@ -15,6 +15,7 @@ export default function AdminLayout(props: MainLayoutProps) {
   const pathname = usePathname();
 
   const extinguisherRoutePrefix: string = '/admin/extinguisher';
+  const userRoutePrefix: string = '/admin/user';
 
   return (
     <div>
@@ -32,6 +33,13 @@ export default function AdminLayout(props: MainLayoutProps) {
                   <Link href="/admin/extinguisher" className={`flex items-center p-2 ${pathname.startsWith(extinguisherRoutePrefix) ? 'text-purple-600 bg-purple-100' : 'text-gray-600'} hover:bg-blue-100 rounded-lg transition`}>
                     <Squares2X2Icon className="w-6 h-6 mb-0.5 mr-3" />
                     <span className="text-xs">APAR</span>
+                  </Link>
+                </li>
+
+                <li>
+                  <Link href="/admin/user" className={`flex items-center p-2 ${pathname.startsWith(userRoutePrefix) ? 'text-purple-600 bg-purple-100' : 'text-gray-600'} hover:bg-blue-100 rounded-lg transition`}>
+                    <UserIcon className="w-6 h-6 mb-0.5 mr-3" />
+                    <span className="text-xs">Pengguna</span>
                   </Link>
                 </li>
               </ul>

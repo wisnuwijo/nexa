@@ -13,6 +13,7 @@ export default function LetterheadPage() {
     const [file, setFile] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -55,6 +56,7 @@ export default function LetterheadPage() {
             return;
         }
 
+        setIsSaving(true);
         const toastId = toast.loading("Mengunggah KOP surat...");
         try {
             // Call the upload function for both types
@@ -68,6 +70,8 @@ export default function LetterheadPage() {
         } catch (err) {
             const message = err instanceof Error ? err.message : "Gagal mengunggah KOP surat.";
             toast.update(toastId, { render: message, type: "error", isLoading: false, autoClose: 5000 });
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -97,11 +101,13 @@ export default function LetterheadPage() {
                             className="hidden"
                             ref={fileInputRef}
                             onChange={handleFileChange}
+                            disabled={isSaving}
                         />
                         <button
                             type="button"
                             className="bg-gray-200 text-black px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-300 transition-colors"
                             onClick={() => fileInputRef.current?.click()}
+                            disabled={isSaving}
                         >
                             Pilih KOP
                         </button>
@@ -111,8 +117,8 @@ export default function LetterheadPage() {
                         {error && <p className="text-red-500 text-xs">{error}</p>}
                     </div>
                     <div className="pt-4">
-                        <button type="submit" className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center">
-                            Simpan
+                        <button type="submit" className="w-full bg-purple-600 text-white py-3 rounded-xl font-medium hover:bg-purple-700 transition-colors text-center disabled:opacity-60" disabled={isSaving}>
+                            {isSaving ? 'Menyimpan...' : 'Simpan'}
                         </button>
                     </div>
                 </form>

@@ -453,6 +453,79 @@ export async function addProduct(params: AddProductParams) {
     return res.json();
 }
 
+export type AddProductSuperAdminParams = {
+    deskripsi: string;
+    brand: string;
+    type: string;
+    media: string;
+    jumlah: string;
+    kapasitas: string;
+    tanggal_produksi: string; // Format: YYYY-MM-DD
+    tanggal_kadaluarsa: string; // Format: YYYY-MM-DD
+    kode_customer?: string;
+};
+
+export type AddProductSuperAdminResponse = {
+    message: string;
+    data: {
+        kode_barang: string;
+        barcode: string;
+        deskripsi: string;
+        brand: string;
+        type: string;
+        media: string;
+        kapasitas: string;
+        tgl_produksi: string;
+        tgl_kadaluarsa: string;
+        garansi: string | null;
+        lokasi: string | null;
+        batch: string;
+        kode_customer: string;
+        updated_at: string;
+        created_at: string;
+        id: number;
+    }[];
+    pdf_download_url: string;
+};
+
+export async function addProductSuperAdmin(params: AddProductSuperAdminParams): Promise<AddProductSuperAdminResponse> {
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => { logout(); window.location.reload(); }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const formData = new FormData();
+    formData.append('deskripsi', params.deskripsi);
+    formData.append('brand', params.brand);
+    formData.append('type', params.type);
+    formData.append('media', params.media);
+    formData.append('jumlah', params.jumlah);
+    formData.append('kapasitas', params.kapasitas);
+    formData.append('tanggal_produksi', params.tanggal_produksi);
+    formData.append('tanggal_kadaluarsa', params.tanggal_kadaluarsa);
+    if (params.kode_customer) {
+        formData.append('kode_customer', params.kode_customer);
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/add_product_super_admin`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ message: 'Gagal membuat stiker baru.' }));
+        throw new Error(errorData.message || 'Gagal membuat stiker baru.');
+    }
+
+    return res.json();
+}
+
 export type QrSticker = {
     id: number;
     date: string;
@@ -637,6 +710,112 @@ export async function getQrStickerList(): Promise<QrSticker[]> {
 
     const result: QrStickerListResponse = await res.json();
     return result.data;
+}
+
+export type QrBatchSuperAdmin = {
+    id: number;
+    batch: string;
+    date: string;
+    count_qr: number;
+    kode_customer: string | null;
+    path_qr: string;
+    created_at: string;
+    updated_at: string | null;
+    deleted_at: string | null;
+    download_qr_url: string;
+    count_apar: number;
+    list_apar: Extinguisher[];
+};
+
+export type QrBatchSuperAdminListResponse = {
+    message: string;
+    list_apar: QrBatchSuperAdmin[];
+};
+
+export async function getQrStickerListSuperAdmin(): Promise<QrBatchSuperAdmin[]> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const res = await fetch(`${API_BASE_URL}/product/list_apar_super_admin`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) {
+            setTimeout(() => {
+                logout();
+                window.location.reload();
+            }, 2000);
+            throw new Error('Sesi telah berakhir. Silakan login kembali.');
+        }
+        throw new Error('Gagal mengambil daftar QR sticker super admin.');
+    }
+
+    const result: QrBatchSuperAdminListResponse = await res.json();
+    return result.list_apar;
+}
+
+export type UpdateBatchOwnerParams = {
+    kode_customer: string;
+    batch: string;
+};
+
+export type UpdateBatchOwnerResponse = {
+    message: string;
+    list_apar: number;
+};
+
+export async function updateBatchOwner(params: UpdateBatchOwnerParams): Promise<UpdateBatchOwnerResponse> {
+    // Get token from cookies
+    const token = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('token='))
+        ?.split('=')[1];
+
+    if (!token) {
+        setTimeout(() => {
+            logout();
+            window.location.reload();
+        }, 2000);
+        throw new Error('Token tidak ditemukan. Silakan login terlebih dahulu.');
+    }
+
+    const formData = new FormData();
+    formData.append('kode_customer', params.kode_customer);
+    formData.append('batch', params.batch);
+
+    const res = await fetch(`${API_BASE_URL}/product/update_produk_super_admin`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json',
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        if (res.status === 401) { setTimeout(() => { logout(); window.location.reload(); }, 2000); throw new Error('Sesi telah berakhir. Silakan login kembali.'); }
+        const errorData = await res.json().catch(() => ({ message: 'Gagal memperbarui pemilik batch.' }));
+        throw new Error(errorData.message || 'Gagal memperbarui pemilik batch.');
+    }
+
+    return res.json();
 }
 
 export type ExtinguisherDetail = Extinguisher & {
